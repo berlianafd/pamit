@@ -46,6 +46,8 @@ export function pengajuanDlPage(){
 
 </div>
 
+ <label>Tambah Peserta Dinas Luar (jika ada)</label>
+<br>
 <input
   type="text"
   id="cariPegawai"
