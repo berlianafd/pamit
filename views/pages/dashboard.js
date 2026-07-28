@@ -205,6 +205,11 @@ export function dashboardPage(){
 <br>
 
 </div>
+
+<div class="dashboard-card">
+<iframe src="https://scribehow.com/embed/Panduan_Penggunaan_Website__DPD0KXCaTHuCAv01R-aQuA?as=video" width="100%" height="800" allow="fullscreen" style="aspect-ratio: 16 / 12; border: 0; min-height: 480px"></iframe>
+</div>
+<br>
   
     <div class="dashboard-card">
 
