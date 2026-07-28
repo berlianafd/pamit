@@ -83,7 +83,7 @@ export function pengajuanCutiTahunanPage() {
             type="file"
             id="persetujuanAtasan"
             accept=".jpg,.jpeg,.png,image/*"
-            capture="environment"
+            
         >
     </div>
 
