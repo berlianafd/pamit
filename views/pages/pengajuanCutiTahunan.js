@@ -82,7 +82,7 @@ export function pengajuanCutiTahunanPage() {
         <input
             type="file"
             id="persetujuanAtasan"
-            accept="image/*"
+            accept=".jpg,.jpeg,.png,image/*"
             capture="environment"
         >
     </div>
