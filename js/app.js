@@ -3935,6 +3935,7 @@ async function loadReviewPengajuan() {
     `)
     .eq("pengajuan_anggota.is_pengaju", true)
     .in("jenis_pengajuan", ["CUTI_TAHUNAN", "CUTI_SAKIT"])
+    .is("deleted_at", null)
     .order("created_at", {
       ascending: false
     });
@@ -5188,7 +5189,8 @@ async function loadReviewPresensiCuti() {
 )
     `)
     .in("status", ["DISETUJUI", "SELESAI"])
-    .in("jenis_pengajuan", ["CUTI_TAHUNAN", "CUTI_SAKIT"]);
+    .in("jenis_pengajuan", ["CUTI_TAHUNAN", "CUTI_SAKIT"])
+    .is("deleted_at", null);
 
   data.forEach(p => {
 
@@ -5439,6 +5441,7 @@ async function loadReviewPresensiDL() {
     `)
     .eq("pengajuan_anggota.is_pengaju", true)
     .eq("jenis_pengajuan", "DL")
+    .is("deleted_at", null)
 
   data.sort((a, b) =>
     new Date(a.tanggal_awal) - new Date(b.tanggal_awal)
