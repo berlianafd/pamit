@@ -243,8 +243,6 @@ function renderDashboard(role, nama) {
 
   registerLogout();
 
-
-
 }
 
 function showLogin() {
@@ -4643,6 +4641,7 @@ window.loadDashboardAdminCuti = async function () {
         "CUTI_TAHUNAN",
         "CUTI_SAKIT"
       ])
+      .is("deleted_at", null)
       .order("created_at", { ascending: true })
 
       .limit(5);
@@ -4729,6 +4728,7 @@ window.loadDashboardAdminPresensi = async function () {
       .in("jenis_pengajuan", [
         "DL"
       ])
+      .is("deleted_at", null)
       .order("created_at", { ascending: true })
 
       .limit(5);
