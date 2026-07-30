@@ -4,98 +4,130 @@ export function pengajuanCutiTahunanPage() {
 
   <div class="card">
 
-    <h2>Pengajuan Cuti Tahunan</h2>
+    <div class="page-header">
 
-    <div class="saldo-cuti-card">
+    <div>
 
-    <h3>Sisa Cuti Tahunan</h3>
+        <h2>Pengajuan Cuti Tahunan</h2>
 
-    <div id="saldoCutiTahunan">
-
-        Loading...
-
-    </div>
-</div>
-</div>
-<br>
-
-<div class="card">
-
-    <h3>Pilih Tanggal Cuti</h3>
-
-    <div id="calendar"></div>
-
-</div>
-
-<br>
-
-<div class="card">
-
-    <h3>Tanggal Dipilih</h3>
-
-    <div id="tanggalDipilih">
-
-        Belum ada
+        <p>
+            Pilih tanggal cuti dan lengkapi data pengajuan.
+        </p>
 
     </div>
 
-    <h4>
+    <img
+        src="assets/img/calendar.png"
+        class="header-icon">
 
-        Total :
-        <span id="totalHari">
+</div>
 
-            0
+    <div class="top-grid">
 
-        </span>
-        Hari
+    <div class="left-column">
 
-    </h4>
+        <div class="card info-card">
+
+            <h3>Sisa Cuti Tahunan</h3>
+
+            <div id="saldoCutiTahunan"></div>
+
+        </div>
+
+        <div class="card info-card">
+
+            <h3>Tanggal Dipilih</h3>
+
+            <div id="tanggalDipilih">
+
+                Belum ada
+
+            </div>
+
+            <div class="total-box">
+
+                Total :
+
+                <span id="totalHari">
+
+                    0
+
+                </span>
+
+                Hari
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card calendar-card">
+
+        <h3>Pilih Tanggal</h3>
+
+        <div id="calendar"></div>
+
+    </div>
+
+</div>
     
     <br>
 
+  <div class="card">
+
+    <h3>Detail Pengajuan</h3>
+
     <div class="form-group">
 
-        <label>Alasan Cuti</label>
-<br>
+        <label>📝 Alasan Cuti</label>
+
         <textarea
             id="alasanCuti"
-            rows="3"
-        ></textarea>
+            rows="4"
+            placeholder="Tuliskan alasan pengajuan cuti..."></textarea>
 
     </div>
 
     <div class="form-group">
 
-        <label>Alamat Saat Cuti</label>
-<br>
+        <label>📍 Alamat Saat Cuti</label>
+
         <textarea
             id="alamatCuti"
-            rows="3"
-        ></textarea>
+            rows="4"
+            placeholder="Masukkan alamat selama cuti..."></textarea>
 
     </div>
 
     <div class="form-group">
 
-        <label>Bukti Persetujuan Atasan</label>
-<br>
+        <label>📎 Bukti Persetujuan Atasan</label>
+
         <input
             type="file"
             id="persetujuanAtasan"
-            accept=".jpg,.jpeg,.png,image/*"
-        >
+            accept=".jpg,.jpeg,.png,image/*">
+
     </div>
 
-    <br>
-    <button
-        class="btn-primary"
-        id="btnSimpanCutiTahunan"
-    >
+    <div class="form-action">
 
-        Simpan
+        <button
+            class="btn-primary"
+            id="btnSimpanCutiTahunan">
 
-    </button>
+            Simpan
 
+        </button>
+
+    </div>
+
+</div>
+
+<br>
+
+<div class="card">
 
     <hr>
 
@@ -130,7 +162,7 @@ export function pengajuanCutiTahunanPage() {
     </table>
 
   </div>
-
+</div>
   `;
 
 }

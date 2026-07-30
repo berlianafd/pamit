@@ -1490,6 +1490,24 @@ function initCalendarCutiTahunan() {
 
 window.initPengajuanCutiTahunan = async function () {
 
+  const fileInput = document.getElementById("persetujuanAtasan");
+
+fileInput.addEventListener("change", () => {
+
+    const fileName = document.getElementById("uploadFileName");
+
+    if(fileInput.files.length){
+
+        fileName.textContent = fileInput.files[0].name;
+
+    }else{
+
+        fileName.textContent = "Belum ada file dipilih";
+
+    }
+
+});
+
   initCalendarCutiTahunan();
 
   await loadRiwayatCutiTahunan();
