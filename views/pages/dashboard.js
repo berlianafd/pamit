@@ -207,8 +207,12 @@ export function dashboardPage(){
 </div>
 
 <div class="dashboard-card">
-<iframe src="https://scribehow.com/embed/Panduan_Penggunaan_Website__DPD0KXCaTHuCAv01R-aQuA?as=video" width="100%" height="800" allow="fullscreen" style="aspect-ratio: 16 / 12; border: 0; min-height: 480px"></iframe>
+    <div class="dashboard-slide" style="display: flex; justify-content: center;">
+    <iframe src="https://scribehow.com/embed/Panduan_Penggunaan_Website__DPD0KXCaTHuCAv01R-aQuA" width="800" height="679" allow="fullscreen" style="aspect-ratio: 1 / 1; border: 0; min-height: 480px"></iframe>
+    </div>
 </div>
+
+
 <br>
   
     <div class="dashboard-card">
