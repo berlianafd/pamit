@@ -4187,6 +4187,7 @@ async function isiModalDetail(id) {
     return;
 
   }
+  window.currentNamaPegawai = data.pengajuan_anggota[0].pegawai.nama;
 
   const btnDownload =
     document.getElementById("btnDownloadForm");
@@ -4484,15 +4485,107 @@ async function isiModalDetail(id) {
 
     };
 
+  // document
+  //   .getElementById("btnSudahDitandatangani")
+  //   .onclick = async () => {
+
+  //     await sudahDitandatangani(
+  //       window.currentPengajuanId
+  //     );
+
+  //   };
+
   document
     .getElementById("btnSudahDitandatangani")
-    .onclick = async () => {
+    .onclick = () => {
 
-      await sudahDitandatangani(
-        window.currentPengajuanId
-      );
+      window.currentPengajuanIdTTD =
+        window.currentPengajuanId;
+
+      document
+        .getElementById("modalUploadTTD")
+        .showModal();
 
     };
+
+  document
+    .getElementById("btnUploadTTD")
+    .onclick = uploadFormTTD;
+
+}
+
+async function uploadFormTTD() {
+
+  const file =
+    document
+      .getElementById("fileTTD")
+      .files[0];
+
+  if (!file) {
+
+    alert("Pilih file terlebih dahulu.");
+
+    return;
+
+  }
+
+  const now = new Date();
+
+  const stamp =
+    now.getFullYear() +
+    String(now.getMonth() + 1).padStart(2, "0") +
+    String(now.getDate()).padStart(2, "0") +
+    "_" +
+    String(now.getHours()).padStart(2, "0") +
+    String(now.getMinutes()).padStart(2, "0") +
+    String(now.getSeconds()).padStart(2, "0");
+
+  const uuid =
+    crypto.randomUUID().split("-")[0]; // 8 karakter
+
+  const nama =
+    window.currentNamaPegawai
+      .trim()
+      .replace(/\s+/g, "_")
+      .replace(/[^A-Za-z0-9_]/g, "");
+
+  const fileName =
+    `CUTI_${nama}_${stamp}_${uuid}.pdf`;
+
+  const { error } =
+    await supabase.storage
+
+      .from("form_cuti_ttd")
+
+      .upload(fileName, file, {
+
+        upsert: true
+
+      });
+
+  if (error) {
+
+    alert(error.message);
+
+    console.error(error);
+
+    return;
+
+  }
+
+  // 2. Simpan ke tabel dokumen
+const { error: dokumenError } = await supabase
+    .from("dokumen")
+    .insert({
+        pengajuan_id: window.currentPengajuanIdTTD,
+        jenis_dokumen: "FORM_CUTI_TTD",
+        file_url: fileName
+    });
+
+if (dokumenError) return;
+
+// 3. Update pengajuan
+await sudahDitandatangani(window.currentPengajuanIdTTD);
 
 }
 

@@ -149,6 +149,11 @@ export async function generateFormCuti(pengajuanId) {
                     ? "✓"
                     : "",
 
+            jenis_nip:
+                data.jenis_pegawai === "PNS"
+                ? "NIP"
+                : "NIPPPK",                
+
             tahun_sekarang:
 
                 tahun,

@@ -188,6 +188,23 @@ export function reviewPengajuanPage() {
     </div>
 
 </dialog>
+
+<dialog id="modalUploadTTD">
+
+    <h3>Upload Form Cuti yang Sudah Ditandatangani</h3>
+
+    <input
+        type="file"
+        id="fileTTD"
+        accept=".pdf">
+
+    <button id="btnUploadTTD">
+
+        Upload
+
+    </button>
+
+</dialog>
   `;
 
 }
