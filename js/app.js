@@ -4189,6 +4189,17 @@ async function isiModalDetail(id) {
   }
   window.currentNamaPegawai = data.pengajuan_anggota[0].pegawai.nama;
 
+  const formTTD =
+    data.dokumen.find(
+      d => d.jenis_dokumen === "FORM_CUTI_TTD"
+    );
+
+  const previewFormTTD =
+    document.getElementById("previewFormTTD");
+
+    const cardpreviewFormTTD =
+    document.getElementById("card-preview-ttd");
+
   const btnDownload =
     document.getElementById("btnDownloadForm");
 
@@ -4201,39 +4212,41 @@ async function isiModalDetail(id) {
   const btnTolak =
     document.getElementById("btnTolak");
 
-  if (data.catatan_admin === "Dokumen disetujui" ||
-    data.catatan_admin === "Dokumen sedang dalam penyusunan dan diajukan untuk penandatanganan." ||
-    data.catatan_admin === "Proses perubahan status presensi.") {
-
-    btnDownload.style.display = "inline-block";
-    btnTTD.style.display = "inline-block";
-    btnSetujui.style.display = "none"
-    btnTolak.style.display = "none";
-
-  } else {
+  if (formTTD) {
 
     btnDownload.style.display = "none";
     btnTTD.style.display = "none";
-    btnTolak.style.display = "inline-block";
-    btnSetujui.style.display = "inline-block";
-  }
 
-  if (
-    data.catatan_admin ===
-    "Proses perubahan status presensi."
-  ) {
+    btnSetujui.style.display = "none";
+    btnTolak.style.display = "none";
 
-    btnTTD.disabled = true;
-
-    btnTTD.innerHTML =
-      "✔ Sudah Ditandatangani";
+    cardpreviewFormTTD.style.display = "block";
+    previewFormTTD.style.display = "block"
 
   } else {
 
-    btnTTD.disabled = false;
+    cardpreviewFormTTD.style.display = "none";
 
-    btnTTD.innerHTML =
-      "Tandai Sudah Ditandatangani";
+    if (
+      data.catatan_admin === "Dokumen disetujui" ||
+      data.catatan_admin === "Dokumen sedang dalam penyusunan dan diajukan untuk penandatanganan." ||
+      data.catatan_admin === "Proses perubahan status presensi."
+    ) {
+
+      btnDownload.style.display = "inline-block";
+      btnTTD.style.display = "inline-block";
+
+      btnSetujui.style.display = "none";
+      btnTolak.style.display = "none";
+
+    } else {
+
+      btnDownload.style.display = "none";
+      btnTTD.style.display = "none";
+
+      btnSetujui.style.display = "inline-block";
+      btnTolak.style.display = "inline-block";
+    }
 
   }
 
@@ -4463,6 +4476,20 @@ async function isiModalDetail(id) {
 
   }
 
+  if (formTTD) {
+  const { data: signedTTD } =
+    await supabase.storage
+      .from("form_cuti_ttd")
+      .createSignedUrl(formTTD.file_url, 600);
+
+  previewFormTTD.innerHTML = `
+<iframe
+    src="${signedTTD.signedUrl}"
+    class="preview-file">
+</iframe>
+`;
+  }
+
   document
     .getElementById("btnDownloadForm")
     .onclick = async () => {
@@ -4574,18 +4601,29 @@ async function uploadFormTTD() {
   }
 
   // 2. Simpan ke tabel dokumen
-const { error: dokumenError } = await supabase
+  // const { error: dokumenError } = await supabase
+  //   .from("dokumen")
+  //   .insert({
+  //     pengajuan_id: window.currentPengajuanIdTTD,
+  //     jenis_dokumen: "FORM_CUTI_TTD",
+  //     file_url: fileName
+  //   });
+
+  // if (dokumenError) return;
+
+  const payload = {
+    pengajuan_id: window.currentPengajuanIdTTD,
+    jenis_dokumen: "FORM_CUTI_TTD",
+    file_url: fileName
+  };
+
+  const { data, errorpayload } = await supabase
     .from("dokumen")
-    .insert({
-        pengajuan_id: window.currentPengajuanIdTTD,
-        jenis_dokumen: "FORM_CUTI_TTD",
-        file_url: fileName
-    });
+    .insert(payload)
+    .select();
 
-if (dokumenError) return;
-
-// 3. Update pengajuan
-await sudahDitandatangani(window.currentPengajuanIdTTD);
+  // 3. Update pengajuan
+  await sudahDitandatangani(window.currentPengajuanIdTTD);
 
 }
 
@@ -4615,6 +4653,10 @@ async function sudahDitandatangani(id) {
     return;
 
   }
+
+  document
+        .getElementById("modalUploadTTD")
+        .close();
 
   await loadReviewPengajuan();
 

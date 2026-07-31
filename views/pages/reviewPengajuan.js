@@ -152,13 +152,27 @@ export function reviewPengajuanPage() {
         </button>
 
     </div>
-<div class="download-wrapper">
-    <button
-    id="btnSudahDitandatangani"
-    class="btn-success">
-    Tandai Sudah Ditandatangani
-</button>
-</div>
+
+    <div class="download-wrapper">
+        <button
+            id="btnSudahDitandatangani"
+            class="btn-success">
+            Tandai Sudah Ditandatangani
+        </button>
+    </div>
+
+      <div class="detail-card" id="card-preview-ttd">
+
+        <div class="card-title">
+
+            📎 Dokumen Cuti Tertandatangani
+
+        </div>
+
+        <div id="previewFormTTD" style="display:none;"></div>
+
+    </div>
+    
 
     </div>
 

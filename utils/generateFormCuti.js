@@ -150,8 +150,8 @@ export async function generateFormCuti(pengajuanId) {
                     : "",
 
             jenis_nip:
-                data.jenis_pegawai === "PNS"
-                ? "NIP"
+                pegawai.jenis_pegawai === "PNS"
+                ? "NIP\t"
                 : "NIPPPK",                
 
             tahun_sekarang:
@@ -249,7 +249,7 @@ export async function generateFormCuti(pengajuanId) {
             nip_atasan2: atasan.nip_atasan2,
 
             jenis_pegawai:
-                data.jenis_pegawai === "PNS"
+                pegawai.jenis_pegawai === "PNS"
                     ? "Pegawai Negeri Sipil"
                     : "Pegawai Pemerintah dengan Perjanjian Kerja"
 
