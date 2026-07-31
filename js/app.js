@@ -4944,7 +4944,7 @@ window.loadDashboardAdminPresensi = async function () {
         "CUTI_TAHUNAN",
         "CUTI_SAKIT"
       ])
-
+      .is("deleted_at", null)
       .order("created_at", { ascending: true })
 
       .limit(5);
