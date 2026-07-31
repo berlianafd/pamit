@@ -3566,6 +3566,7 @@ async function lihatSuratCutiSakit(id) {
         "pengajuan_id",
         id
       )
+      .eq("jenis_dokumen", "SURAT_SAKIT")
       .single();
 
   if (error) {
@@ -5317,6 +5318,19 @@ window.initReviewPresensiCuti = async function () {
     .getElementById("reviewPengajuanBody")
     .onclick = async (e) => {
 
+      const btnLihat =
+        e.target.closest(".btnLihatSurat");
+
+      if (btnLihat) {
+
+        await lihatSuratTTD(
+          btnLihat.dataset.id
+        );
+
+        return;
+
+      }
+
       const btn = e.target.closest(".btnSelesai");
 
       if (!btn) return;
@@ -5341,6 +5355,53 @@ window.initReviewPresensiCuti = async function () {
       await loadReviewPresensiCuti();
 
     };
+
+}
+
+async function lihatSuratTTD(pengajuanId){
+
+    const { data, error } = await supabase
+
+        .from("dokumen")
+
+        .select("file_url")
+
+        .eq("pengajuan_id", pengajuanId)
+
+        .eq("jenis_dokumen", "FORM_CUTI_TTD")
+
+        .single();
+
+    if(error){
+
+        alert("Dokumen tidak ditemukan.");
+
+        return;
+
+    }
+
+    const { data: signed, error: signedError } =
+        await supabase.storage
+
+        .from("form_cuti_ttd")
+
+        .createSignedUrl(
+            data.file_url,
+            600
+        );
+
+    if(signedError){
+
+        alert("Gagal membuka dokumen.");
+
+        return;
+
+    }
+
+    window.open(
+        signed.signedUrl,
+        "_blank"
+    );
 
 }
 
@@ -5488,6 +5549,14 @@ async function loadReviewPresensiCuti() {
 <td>${item.catatan_admin ?? "-"}</td>
 
 <td>
+
+    <button
+        class="btnLihatSurat"
+        data-id="${item.id}">
+
+        📄 Lihat Surat
+
+    </button>
 
 ${item.status === "SELESAI"
 
