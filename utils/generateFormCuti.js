@@ -19,7 +19,8 @@ export async function generateFormCuti(pengajuanId) {
                     jabatan,
                     pangkatgol,
                     nohp,
-                    unit_kerja
+                    unit_kerja,
+                    jenis_pegawai
                 ),
                 cuti_tahunan_detail(*),
                 cuti_tahunan_tanggal(*),
@@ -126,11 +127,27 @@ export async function generateFormCuti(pengajuanId) {
 
         const templateData = {
 
+            jenis_cuti_header:
+
+                namaJenisCutiHeader(
+                    data.jenis_pengajuan
+                ),
+
             jenis_cuti:
 
                 namaJenisCuti(
                     data.jenis_pengajuan
                 ),
+
+            cek_ct:
+                data.jenis_pengajuan === "CUTI_TAHUNAN"
+                    ? "✓"
+                    : "",
+
+            cek_cs:
+                data.jenis_pengajuan === "CUTI_SAKIT"
+                    ? "✓"
+                    : "",
 
             tahun_sekarang:
 
@@ -224,7 +241,13 @@ export async function generateFormCuti(pengajuanId) {
 
             atasan2: atasan.atasan2,
 
-            nip_atasan2: atasan.nip_atasan2
+            nip_atasan2: atasan.nip_atasan2,
+
+            jenis_pegawai:
+                data.jenis_pegawai === "PNS"
+                    ? "Pegawai Negeri Sipil"
+                    : "Pegawai Pemerintah dengan Perjanjian Kerja"
+
 
         };
 
@@ -329,7 +352,17 @@ export async function generateFormCuti(pengajuanId) {
 
     }
 
-    
+
+
+}
+
+function namaJenisCutiHeader(jenis) {
+
+    return jenis == "CUTI_TAHUNAN"
+
+        ? "CUTI TAHUNAN"
+
+        : "CUTI SAKIT";
 
 }
 
@@ -337,9 +370,9 @@ function namaJenisCuti(jenis) {
 
     return jenis == "CUTI_TAHUNAN"
 
-        ? "CUTI TAHUNAN"
+        ? "cuti tahunan"
 
-        : "CUTI SAKIT";
+        : "cuti sakit";
 
 }
 

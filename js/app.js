@@ -1492,21 +1492,21 @@ window.initPengajuanCutiTahunan = async function () {
 
   const fileInput = document.getElementById("persetujuanAtasan");
 
-fileInput.addEventListener("change", () => {
+  fileInput.addEventListener("change", () => {
 
     const fileName = document.getElementById("uploadFileName");
 
-    if(fileInput.files.length){
+    if (fileInput.files.length) {
 
-        fileName.textContent = fileInput.files[0].name;
+      fileName.textContent = fileInput.files[0].name;
 
-    }else{
+    } else {
 
-        fileName.textContent = "Belum ada file dipilih";
+      fileName.textContent = "Belum ada file dipilih";
 
     }
 
-});
+  });
 
   initCalendarCutiTahunan();
 
@@ -1835,8 +1835,8 @@ async function simpanPengajuanCutiSakit() {
       .getElementById("tanggalSelesai")
       .value;
 
-      const alamatCS = 
-      document
+  const alamatCS =
+    document
       .getElementById("alamatCutiSakit")
       .value;
 
@@ -4200,9 +4200,9 @@ async function isiModalDetail(id) {
   const btnTolak =
     document.getElementById("btnTolak");
 
-  if (data.catatan_admin === "Dokumen disetujui" || 
+  if (data.catatan_admin === "Dokumen disetujui" ||
     data.catatan_admin === "Dokumen sedang dalam penyusunan dan diajukan untuk penandatanganan." ||
-  data.catatan_admin === "Proses perubahan status presensi."  ) {
+    data.catatan_admin === "Proses perubahan status presensi.") {
 
     btnDownload.style.display = "inline-block";
     btnTTD.style.display = "inline-block";
@@ -4236,7 +4236,7 @@ async function isiModalDetail(id) {
 
   }
 
-  if(data.status==="SELESAI"){
+  if (data.status === "SELESAI") {
     btnDownload.style.display = "none";
     btnTTD.style.display = "none";
 
@@ -4416,12 +4416,49 @@ async function isiModalDetail(id) {
 
   } else {
 
+    let rotate = 0;
+
     preview.innerHTML = `
+    <div class="preview-toolbar">
+
+        <button id="btnRotateLeft">
+            ↺ Putar Kiri
+        </button>
+
+        <button id="btnRotateRight">
+            Putar Kanan ↻
+        </button>
+
+    </div>
+
+    <div class="preview-wrapper">
+
         <img
+            id="previewImg"
             src="${fileUrl}"
             class="preview-image"
             alt="Dokumen Pendukung">
-    `;
+
+    </div>
+`;
+
+    const img = document.getElementById("previewImg");
+
+    document.getElementById("btnRotateLeft").onclick = () => {
+
+      rotate -= 90;
+
+      img.style.transform = `rotate(${rotate}deg)`;
+
+    };
+
+    document.getElementById("btnRotateRight").onclick = () => {
+
+      rotate += 90;
+
+      img.style.transform = `rotate(${rotate}deg)`;
+
+    };
 
   }
 
@@ -5142,33 +5179,33 @@ window.initReviewPresensiCuti = async function () {
   await loadReviewPresensiCuti();
 
   document
-  .getElementById("reviewPengajuanBody")
-  .onclick = async (e) => {
+    .getElementById("reviewPengajuanBody")
+    .onclick = async (e) => {
 
-    const btn = e.target.closest(".btnSelesai");
+      const btn = e.target.closest(".btnSelesai");
 
-    if (!btn) return;
+      if (!btn) return;
 
-    if (!confirm("Perubahan status presensi sudah selesai dilakukan?")) {
-      return;
-    }
+      if (!confirm("Perubahan status presensi sudah selesai dilakukan?")) {
+        return;
+      }
 
-    const { error } = await supabase
-      .from("pengajuan")
-      .update({
-        status: "SELESAI",
-        catatan_admin: "Perubahan status presensi selesai."
-      })
-      .eq("id", btn.dataset.id);
+      const { error } = await supabase
+        .from("pengajuan")
+        .update({
+          status: "SELESAI",
+          catatan_admin: "Perubahan status presensi selesai."
+        })
+        .eq("id", btn.dataset.id);
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
+      if (error) {
+        alert(error.message);
+        return;
+      }
 
-    await loadReviewPresensiCuti();
+      await loadReviewPresensiCuti();
 
-};
+    };
 
 }
 
