@@ -6,37 +6,19 @@ export function pengajuanDlPage(){
 
     <h2>Pengajuan Dinas Luar</h2>
 
-    <div class="form-grid">
+    <div class="tanggal-row">
 
-      <div>
-
-        <label>
-          Tanggal Mulai
-        </label>
-<br>
-        <input
-        required
-          type="date"
-          id="tglMulai"
-        >
-
-      </div>
-
-      <div>
-
-        <label>
-          Tanggal Selesai
-        </label>
-<br>
-        <input
-        required
-          type="date"
-          id="tglSelesai"
-        >
-
-      </div>
-
+    <div class="tanggal-item">
+        <label>Tanggal Mulai</label>
+        <input type="date" id="tglMulai">
     </div>
+
+    <div class="tanggal-item">
+        <label>Tanggal Selesai</label>
+        <input type="date" id="tglSelesai">
+    </div>
+
+</div>
 
     <br>
 

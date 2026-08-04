@@ -19,34 +19,19 @@ export function pengajuanCutiSakitPage() {
             class="header-icon">
     </div>
 
-    <div class="form-group">
+    <div class="tanggal-row">
 
-        <label>
-
-        Tanggal Mulai
-
-        </label>
-        <br>
-        <input
-        type="date"
-        id="tanggalMulai"
-        >
-
+    <div class="tanggal-item">
+        <label>Tanggal Mulai</label>
+        <input type="date" id="tanggalMulai">
     </div>
 
-    <div class="form-group">
-
-        <label>
-
-        Tanggal Selesai
-
-    </label>
-        <br>
-        <input
-        type="date"
-        id="tanggalSelesai"
-        >
+    <div class="tanggal-item">
+        <label>Tanggal Selesai</label>
+        <input type="date" id="tanggalSelesai">
     </div>
+
+</div>
      
     <div class="form-group">
 

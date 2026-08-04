@@ -1734,3 +1734,89 @@ color:#2563eb;
     display:block;
 
 }
+
+/* Input Date Modern */
+
+input[type="date"] {
+
+    width: 220px;
+
+    height: 46px;
+
+    padding: 0 14px;
+
+    border: 1px solid #d6dbe8;
+
+    border-radius: 10px;
+
+    background: #fff;
+
+    font-size: 14px;
+
+    font-family: inherit;
+
+    color: #2d3748;
+
+    transition: .2s;
+
+    cursor: pointer;
+
+}
+
+input[type="date"]:hover {
+
+    border-color: #7aa7ff;
+
+}
+
+input[type="date"]:focus {
+
+    outline: none;
+
+    border-color: #4a90ff;
+
+    box-shadow: 0 0 0 3px rgba(74,144,255,.15);
+
+}
+
+/* Icon kalender */
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+
+    cursor: pointer;
+
+    padding: 4px;
+
+    border-radius: 6px;
+
+    transition: .2s;
+
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+
+    background: #eef5ff;
+
+}
+
+.tanggal-row{
+
+    display:flex;
+
+    gap:24px;
+
+    flex-wrap:wrap;
+
+    margin-bottom:20px;
+
+}
+
+.tanggal-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
