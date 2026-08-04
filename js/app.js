@@ -2194,10 +2194,10 @@ async function simpanPengajuanDl() {
 
     });
 
- const pegawaiIds =
+  const pegawaiIds =
     pesertaDipilih.map(x => x.id);
 
-await updateTKBerdasarkanRentangTanggal(
+  await updateTKBerdasarkanRentangTanggal(
 
     pegawaiIds,
 
@@ -2207,7 +2207,7 @@ await updateTKBerdasarkanRentangTanggal(
 
     KETERANGAN_TK.PENGAJUAN_DL
 
-);
+  );
 
   alert(
     "Pengajuan berhasil disimpan"
@@ -2914,7 +2914,7 @@ class="btn-lihat-surat"
 data-id="${p.id}"
 >
 
-Lihat Surat
+Lihat Surat Sakit
 
 </button>
 
@@ -2930,6 +2930,28 @@ data-id="${p.id}"
 >
 
 Hapus
+
+</button>
+
+`
+
+        :
+
+        ""
+
+      }
+
+${p.status === "SELESAI"
+
+        ?
+
+        `
+
+<button
+class="btn-success btn-lihat-form-cuti"
+data-id="${p.id}">
+
+Lihat Form Cuti
 
 </button>
 
@@ -2979,6 +3001,19 @@ Hapus
           hapus.dataset.id
         )
 
+      );
+
+      return;
+
+    }
+
+    const btnLihatForm =
+      e.target.closest(".btn-lihat-form-cuti");
+
+    if (btnLihatForm) {
+
+      await lihatFormCuti(
+        Number(btnLihatForm.dataset.id)
       );
 
       return;
@@ -3306,6 +3341,27 @@ Hapus
         : ""
 
       }
+${p.status === "SELESAI"
+
+        ?
+
+        `
+
+<button
+class="btn-success btn-lihat-form-cuti-tahunan"
+data-id="${p.id}">
+
+Lihat Form Cuti
+
+</button>
+
+`
+
+        :
+
+        ""
+
+      }
 
 </td>
 
@@ -3346,6 +3402,19 @@ Hapus
           hapus.dataset.id
         )
 
+      );
+
+      return;
+
+    }
+
+    const btnLihatForm =
+      e.target.closest(".btn-lihat-form-cuti-tahunan");
+
+    if (btnLihatForm) {
+
+      await lihatFormCuti(
+        Number(btnLihatForm.dataset.id)
       );
 
       return;
@@ -3846,11 +3915,11 @@ async function hapusPengajuanDl(id) {
 
   }
 
- const { data: detail } = await supabase
+  const { data: detail } = await supabase
 
-  .from("pengajuan")
+    .from("pengajuan")
 
-  .select(`
+    .select(`
       pengajuan_anggota(
           pegawai_id
       ),
@@ -3860,28 +3929,28 @@ async function hapusPengajuanDl(id) {
       )
   `)
 
-  .eq("id", id)
+    .eq("id", id)
 
-  .single();
+    .single();
 
   const pegawaiIds =
     detail.pengajuan_anggota.map(
-        x => x.pegawai_id
+      x => x.pegawai_id
     );
 
-for (const pegawaiId of pegawaiIds) {
+  for (const pegawaiId of pegawaiIds) {
 
     await refreshKeteranganTKRentang(
 
-        pegawaiId,
+      pegawaiId,
 
-        detail.dl_detail[0].tanggal_mulai,
+      detail.dl_detail[0].tanggal_mulai,
 
-        detail.dl_detail[0].tanggal_selesai
+      detail.dl_detail[0].tanggal_selesai
 
     );
 
-}
+  }
 
   alert("Pengajuan berhasil dihapus.");
 
@@ -4483,31 +4552,30 @@ async function loadReviewPengajuan() {
   }
 
   const urutanStatus = {
-  "MENUNGGU": 1,
-  "DIPROSES": 2,
-  "DITOLAK": 3,
-  "SELESAI": 4
-};
+    "MENUNGGU": 1,
+    "DIPROSES": 2,
+    "DITOLAK": 3,
+    "SELESAI": 4
+  };
 
-data.sort((a, b) => {
+  data.sort((a, b) => {
 
-  const statusA =
-    urutanStatus[a.status] ?? 99;
+    const statusA =
+      urutanStatus[a.status] ?? 99;
 
-  const statusB =
-    urutanStatus[b.status] ?? 99;
+    const statusB =
+      urutanStatus[b.status] ?? 99;
 
-  if (statusA !== statusB) {
-    return statusA - statusB;
-  }
+    if (statusA !== statusB) {
+      return statusA - statusB;
+    }
 
-  // Jika status sama, urutkan berdasarkan tanggal mulai
-  const tglA = a.dl_detail?.[0]?.tanggal_mulai ?? "";
-  const tglB = b.dl_detail?.[0]?.tanggal_mulai ?? "";
+    const tglA = ambilTanggalPengajuan(a);
+    const tglB = ambilTanggalPengajuan(b);
 
-  return new Date(tglA) - new Date(tglB);
+    return new Date(tglA) - new Date(tglB);
 
-});
+  });
 
   tbody.innerHTML = "";
 
@@ -5980,6 +6048,53 @@ async function lihatSuratTTD(pengajuanId) {
 
 }
 
+async function lihatSuratTugas(pengajuanId) {
+
+  const { data, error } = await supabase
+
+    .from("dokumen")
+
+    .select("file_url")
+
+    .eq("pengajuan_id", pengajuanId)
+
+    .eq("jenis_dokumen", "SURAT_TUGAS")
+
+    .single();
+
+  if (error) {
+
+    alert("Dokumen tidak ditemukan.");
+
+    return;
+
+  }
+
+  const { data: signed, error: signedError } =
+    await supabase.storage
+
+      .from("surat_dl")
+
+      .createSignedUrl(
+        data.file_url,
+        600
+      );
+
+  if (signedError) {
+
+    alert("Gagal membuka dokumen.");
+
+    return;
+
+  }
+
+  window.open(
+    signed.signedUrl,
+    "_blank"
+  );
+
+}
+
 async function loadReviewPresensiCuti() {
 
   const tbody = document.getElementById(
@@ -6036,10 +6151,31 @@ async function loadReviewPresensiCuti() {
 
   });
 
-  data.sort((a, b) =>
-    new Date(a.tanggal_awal) - new Date(b.tanggal_awal)
-  );
+  const urutanStatus = {
+    "MENUNGGU": 1,
+    "DIPROSES": 2,
+    "DITOLAK": 3,
+    "SELESAI": 4
+  };
 
+  data.sort((a, b) => {
+
+    const statusA =
+      urutanStatus[a.status] ?? 99;
+
+    const statusB =
+      urutanStatus[b.status] ?? 99;
+
+    if (statusA !== statusB) {
+      return statusA - statusB;
+    }
+
+    const tglA = ambilTanggalPengajuan(a);
+    const tglB = ambilTanggalPengajuan(b);
+
+    return new Date(tglB) - new Date(tglA);
+
+  });
 
   if (error) {
 
@@ -6169,6 +6305,19 @@ window.initReviewPresensiDL = async function () {
   document
     .getElementById("reviewPresensiDlBody")
     .onclick = async (e) => {
+
+      const btnLihat =
+        e.target.closest(".btn-lihat-surtug");
+
+      if (btnLihat) {
+
+        await lihatSuratTugas(
+          btnLihat.dataset.id
+        );
+
+        return;
+
+      }
 
       const btn =
         e.target.closest(".btn-detail-review");
@@ -6315,31 +6464,31 @@ async function loadReviewPresensiDL() {
     .is("deleted_at", null)
 
   const urutanStatus = {
-  "MENUNGGU": 1,
-  "DIPROSES": 2,
-  "DITOLAK": 3,
-  "SELESAI": 4
-};
+    "MENUNGGU": 1,
+    "DIPROSES": 2,
+    "DITOLAK": 3,
+    "SELESAI": 4
+  };
 
-data.sort((a, b) => {
+  data.sort((a, b) => {
 
-  const statusA =
-    urutanStatus[a.status] ?? 99;
+    const statusA =
+      urutanStatus[a.status] ?? 99;
 
-  const statusB =
-    urutanStatus[b.status] ?? 99;
+    const statusB =
+      urutanStatus[b.status] ?? 99;
 
-  if (statusA !== statusB) {
-    return statusA - statusB;
-  }
+    if (statusA !== statusB) {
+      return statusA - statusB;
+    }
 
-  // Jika status sama, urutkan berdasarkan tanggal mulai
-  const tglA = a.dl_detail?.[0]?.tanggal_mulai ?? "";
-  const tglB = b.dl_detail?.[0]?.tanggal_mulai ?? "";
+    // Jika status sama, urutkan berdasarkan tanggal mulai
+    const tglA = a.dl_detail?.[0]?.tanggal_mulai ?? "";
+    const tglB = b.dl_detail?.[0]?.tanggal_mulai ?? "";
 
-  return new Date(tglA) - new Date(tglB);
+    return new Date(tglB) - new Date(tglA);
 
-});
+  });
 
 
   if (error) {
@@ -6367,13 +6516,13 @@ data.sort((a, b) => {
   data.forEach(item => {
 
     const daftarNama =
-  item.pengajuan_anggota
-    ?.map(x =>
-      x.is_pengaju
-        ? `👤 <b>${x.pegawai.nama}</b>`
-        : `• ${x.pegawai.nama}`
-    )
-    .join("<br>") ?? "-";
+      item.pengajuan_anggota
+        ?.map(x =>
+          x.is_pengaju
+            ? `👤 <b>${x.pegawai.nama}</b>`
+            : `• ${x.pegawai.nama}`
+        )
+        .join("<br>") ?? "-";
 
     const jenis = item.jenis_pengajuan;
 
@@ -6442,9 +6591,14 @@ Lanjutkan Review
           : `
 
 <button
+class="btn-lihat-surtug"
+data-id="${item.id}">
+Lihat Surat Tugas
+</button>
+         <br>
+<button
 class="btn btn-success"
 disabled>
-
 ✔ Sudah Diproses
 
 </button>
@@ -7092,28 +7246,95 @@ async function loadRekapTK() {
 
 }
 
-window.toggleRekapTK =function(header){
+window.toggleRekapTK = function (header) {
 
-    const detail =
-        header.nextElementSibling;
+  const detail =
+    header.nextElementSibling;
 
-    const icon =
-        header.querySelector("span");
+  const icon =
+    header.querySelector("span");
 
-    if(detail.classList.contains("show")){
+  if (detail.classList.contains("show")) {
 
-        detail.classList.remove("show");
+    detail.classList.remove("show");
 
-        icon.innerHTML =
-            icon.innerHTML.replace("▼","▶");
+    icon.innerHTML =
+      icon.innerHTML.replace("▼", "▶");
 
-    }else{
+  } else {
 
-        detail.classList.add("show");
+    detail.classList.add("show");
 
-        icon.innerHTML =
-            icon.innerHTML.replace("▶","▼");
+    icon.innerHTML =
+      icon.innerHTML.replace("▶", "▼");
 
-    }
+  }
+
+}
+
+async function lihatFormCuti(id) {
+
+  const { data, error } =
+    await supabase
+      .from("dokumen")
+      .select("file_url")
+      .eq("pengajuan_id", id)
+      .eq("jenis_dokumen", "FORM_CUTI_TTD")
+      .single();
+
+  if (error) {
+
+    console.error(error);
+
+    alert("Form cuti tidak ditemukan.");
+
+    return;
+
+  }
+
+  const {
+    data: urlData,
+    error: urlError
+  } =
+    await supabase
+      .storage
+      .from("form_cuti_ttd")
+      .createSignedUrl(
+        data.file_url,
+        60
+      );
+
+  if (urlError) {
+
+    console.error(urlError);
+
+    alert("Gagal membuka form cuti.");
+
+    return;
+
+  }
+
+  window.open(
+    urlData.signedUrl,
+    "_blank"
+  );
+
+}
+
+function ambilTanggalPengajuan(item){
+
+  if(item.jenis_pengajuan === "CUTI_SAKIT"){
+
+    return item.cuti_sakit_detail?.[0]?.tanggal_mulai ?? "";
+
+  }
+
+  if(item.jenis_pengajuan === "CUTI_TAHUNAN"){
+
+    return item.cuti_tahunan_tanggal?.[0]?.tanggal ?? "";
+
+  }
+
+  return "";
 
 }
