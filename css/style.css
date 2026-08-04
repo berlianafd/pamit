@@ -1690,3 +1690,47 @@ color:#2563eb;
     transform-origin:center center;
 
 }
+
+.rekap-tk-container{
+
+    max-height:350px;
+
+    overflow-y:auto;
+
+}
+
+.rekap-item{
+
+    border-bottom:1px solid #eee;
+
+    padding:8px 0;
+
+}
+
+.rekap-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+}
+
+.rekap-detail{
+
+    display:none;
+
+    margin-top:6px;
+
+    padding-left:18px;
+
+}
+
+.rekap-detail.show{
+
+    display:block;
+
+}

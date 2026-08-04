@@ -1,114 +1,137 @@
-export function pengajuanCutiSakitPage(){
+export function pengajuanCutiSakitPage() {
 
-return `
+    return `
+<div class="card">
+    <div class="page-header">
 
-<h2>
+        <div>
 
-Pengajuan Cuti Sakit
+            <h2>Pengajuan Cuti Sakit</h2>
 
-</h2>
+            <p>
+                Pilih tanggal cuti dan lengkapi data pengajuan.
+            </p>
 
-<form id="formCutiSakit">
+        </div>
 
-<label>
+        <img
+            src="assets/img/calendar.png"
+            class="header-icon">
+    </div>
 
-Tanggal Mulai
+    <div class="form-group">
 
-</label>
-<br>
-<input
-type="date"
-id="tanggalMulai"
->
-<br><br>
-<label>
+        <label>
 
-Tanggal Selesai
+        Tanggal Mulai
 
-</label>
-<br>
-<input
-type="date"
-id="tanggalSelesai"
->
-<br><br>
+        </label>
+        <br>
+        <input
+        type="date"
+        id="tanggalMulai"
+        >
 
-<label>Alamat Saat Cuti</label>
-<br>
+    </div>
+
+    <div class="form-group">
+
+        <label>
+
+        Tanggal Selesai
+
+    </label>
+        <br>
+        <input
+        type="date"
+        id="tanggalSelesai"
+        >
+    </div>
+     
+    <div class="form-group">
+
+        <label>📝 Alasan Cuti</label>
+
+        <textarea
+            id="alasanCutiSakit"
+            rows="4"
+            placeholder="Tuliskan alasan pengajuan cuti..."></textarea>
+
+    </div>
+
+    <div class="form-group">
+
+        <label>📍 Alamat Saat Cuti</label>
+
         <textarea
             id="alamatCutiSakit"
-            rows="3"
-        ></textarea>
+            rows="4"
+            placeholder="Masukkan alamat selama cuti..."></textarea>
 
-        <br><br>
-<label>
+    </div>
 
-Upload Surat Sakit
+    <div class="form-group">
 
-</label>
-<br>
-<small>
+        <label>📎 Upload Surat Sakit</label>
 
-PDF atau Foto.
-Maksimal 2 MB.
+        <input
+            type="file"
+            id="suratSakit"
+            accept=".pdf,image/*"
+            capture="environment">
 
-</small>
-<br>
-<input
-type="file"
-id="suratSakit"
-accept=".pdf,image/*"
-capture="environment"
->
-<br>
-<br>
-<button
-type="button"
-class="btn-primary"
-id="btnSimpanCutiSakit"
->
+    </div>
 
-Simpan
+    <div class="form-action">
 
-</button>
+        <button
+            class="btn-primary"
+            id="btnSimpanCutiSakit">
+
+            Simpan
+
+        </button>
+
+    </div>
+
+</div>
+
 <br>
 
-</form>
+<div class="card">
 
-<hr>
+    <hr>
 
-<h3>
+    <h3>Riwayat Pengajuan Cuti Sakit</h3>
 
-Riwayat Pengajuan
+    <table>
 
-</h3>
+      <thead>
 
-<table>
+        <tr>
 
-<thead>
+          <th>No Pengajuan</th>
 
-<tr>
+          <th>Tanggal</th>
 
-<th>No</th>
+            <th>Status</th>
 
-<th>Tanggal</th>
+            <th>Keterangan</th>
 
-<th>Status</th>
+            <th>Aksi</th>
 
-<th>Keterangan</th>
+        </tr>
 
-<th>Aksi</th>
+      </thead>
 
-</tr>
+      <tbody id="riwayatCutiSakitBody">
 
-</thead>
+      </tbody>
 
-<tbody id="riwayatCutiSakitBody">
+    </table>
 
-</tbody>
-
-</table>
-
+  </div>
+</div>
 `;
 
 }

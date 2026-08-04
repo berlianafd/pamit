@@ -35,9 +35,17 @@ export function navigate(name) {
     }
 
     if (name === "dashboard" &&
-    typeof window.loadDashboardAdmin === "function") {
+      typeof window.loadDashboardAdmin === "function") {
 
       window.loadDashboardAdmin();
+
+    }
+
+    if (name === "dashboard") {
+
+      if (typeof window.loadRekapTK === "function") {
+        window.loadRekapTK();
+      }
 
     }
 
@@ -71,15 +79,21 @@ export function navigate(name) {
 
     }
 
-     if (name === "reviewPresensiCuti") {
+    if (name === "reviewPresensiCuti") {
 
       window.initReviewPresensiCuti();
 
     }
 
-     if (name === "reviewPresensiDL") {
+    if (name === "reviewPresensiDL") {
 
       window.initReviewPresensiDL();
+
+    }
+
+    if (name === "presensiTK") {
+
+      window.initPresensiTK();
 
     }
 

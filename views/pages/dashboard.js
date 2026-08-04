@@ -21,7 +21,7 @@ export function dashboardPage(){
 
                     <th>Jenis</th>
 
-                    <th>Tanggal</th>
+                    <th>Tanggal Pengajuan</th>
 
                 </tr>
 
@@ -209,6 +209,19 @@ export function dashboardPage(){
 <div class="dashboard-card">
     <div class="dashboard-slide" style="display: flex; justify-content: center;">
     <iframe src="https://scribehow.com/embed/Panduan_Penggunaan_Website__DPD0KXCaTHuCAv01R-aQuA" width="800" height="679" allow="fullscreen" style="aspect-ratio: 1 / 1; border: 0; min-height: 480px"></iframe>
+    </div>
+</div>
+
+<br>
+
+<div class="card">
+    <div class="dashboard-title">
+        Daftar Pegawai Tanpa Keterangan Tahun Ini
+    </div>
+
+    <div
+        id="rekapTKContainer"
+        class="rekap-tk-container">
     </div>
 </div>
 

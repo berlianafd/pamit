@@ -83,6 +83,7 @@ import {
 
 import { saldoCutiPage } from "../views/pages/saldoCuti.js";
 import { reviewPresensiDLPage } from "../views/pages/reviewPresensiDL.js";
+import { presensiTKPage } from "../views/pages/presensiTK.js";
 
 let editId = null;
 let currentPage = 1;
@@ -92,6 +93,23 @@ let pesertaDipilih = [];
 let pegawaiLogin = null;
 let tanggalCutiDipilih = [];
 let calendarCuti = null;
+let daftarPegawaiTK = [];
+const KETERANGAN_TK = {
+
+  TK: "Tanpa Keterangan",
+
+  PENGAJUAN_CUTI: "Pengajuan cuti dalam proses.",
+
+  CUTISAKIT: "Cuti Sakit disetujui.",
+
+  CUTITAHUNAN: "Cuti Tahunan disetujui.",
+
+  PENGAJUAN_DL: "Pengajuan dinas luar dalam proses.",
+
+  DL: "Dinas luar disetujui.",
+
+};
+window.loadRekapTK = loadRekapTK;
 
 const app =
   document.getElementById("app");
@@ -447,6 +465,11 @@ function registerPages() {
   registerRoute(
     "reviewPresensiDL",
     reviewPresensiDLPage
+  );
+
+  registerRoute(
+    "presensiTK",
+    presensiTKPage
   );
 
 }
@@ -1525,6 +1548,377 @@ window.initPengajuanCutiTahunan = async function () {
 
 };
 
+window.initPresensiTK = async function () {
+
+  await loadRiwayatTK();
+
+
+  document
+
+    .getElementById("pegawaiTKSearch")
+
+    .addEventListener("input", e => {
+
+      cariPegawaiTK(e.target.value);
+
+    });
+
+  document
+
+    .getElementById("pegawaiTKResult")
+
+    .addEventListener("click", e => {
+
+      const item =
+        e.target.closest(".pegawai-item");
+
+      if (!item) return;
+
+      tambahPegawaiTK({
+
+        id: Number(item.dataset.id),
+
+        nama: item.dataset.nama
+
+      });
+
+    });
+
+  document
+
+    .getElementById("pegawaiTKContainer")
+
+    .addEventListener("click", e => {
+
+      const btn =
+        e.target.closest(".btnRemovePegawai");
+
+      if (!btn) return;
+
+      daftarPegawaiTK.splice(
+
+        btn.dataset.index,
+
+        1
+
+      );
+
+      renderDaftarPegawaiTK();
+
+    });
+
+  document
+    .getElementById("btnSimpanTK")
+    .onclick = simpanTK;
+
+  document
+    .getElementById("riwayatTKBody")
+    .addEventListener("click", async (e) => {
+
+      const btn = e.target.closest(".btnDeleteTK");
+
+      if (!btn) return;
+
+      if (!confirm("Yakin ingin menghapus data TK ini?")) {
+        return;
+      }
+
+      const { error } = await supabase
+        .from("tk_bulanan")
+        .update({
+          deleted_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", btn.dataset.id);
+
+      if (error) {
+        console.error(error);
+        alert(error.message);
+        return;
+      }
+
+      await loadRiwayatTK();
+
+    });
+
+};
+
+async function simpanTK() {
+
+  const tanggal =
+    document
+      .getElementById("tanggalTK")
+      .value;
+
+  if (!tanggal) {
+
+    alert("Pilih tanggal terlebih dahulu.");
+
+    return;
+
+  }
+
+  if (daftarPegawaiTK.length == 0) {
+
+    alert("Pilih minimal 1 pegawai.");
+
+    return;
+
+  }
+
+  const rows = [];
+
+  for (const p of daftarPegawaiTK) {
+
+    const keterangan =
+      await cekKeteranganTK(
+        p.id,
+        tanggal
+      );
+
+    rows.push({
+
+      pegawai_id: p.id,
+
+      tanggal: tanggal,
+
+      keterangan: keterangan,
+
+      created_at: new Date(),
+
+      updated_at: new Date()
+
+    });
+
+  }
+
+  const { error } =
+    await supabase
+
+      .from("tk_bulanan")
+
+      .insert(rows);
+
+  if (error) {
+
+    if (error.code === "23505") {
+
+      alert("Ada pegawai yang sudah tercatat TK pada tanggal tersebut.");
+
+      return;
+
+    }
+
+    alert(error.message);
+
+    return;
+
+  }
+
+
+
+
+  alert("Data TK berhasil disimpan.");
+
+
+
+  daftarPegawaiTK = [];
+
+  renderDaftarPegawaiTK();
+
+  document.getElementById("pegawaiTKSearch").value = "";
+
+  await loadRiwayatTK();
+
+}
+
+async function loadRiwayatTK() {
+
+  const { data, error } = await supabase
+
+    .from("tk_bulanan")
+
+    .select(`
+            *,
+            pegawai (
+                nama
+            )
+        `)
+
+    .is("deleted_at", null)
+
+    .order("tanggal", {
+      ascending: false
+    })
+
+    .order("created_at", {
+      ascending: false
+    });
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+
+  }
+
+  const body =
+    document.getElementById("riwayatTKBody");
+
+  if (data.length == 0) {
+
+    body.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center">
+                    Belum ada data.
+                </td>
+            </tr>
+        `;
+
+    return;
+
+  }
+
+  body.innerHTML = data.map(x => `
+
+        <tr align="center">
+
+            <td>
+                ${formatTanggal(x.tanggal)}
+            </td>
+
+            <td>
+                ${x.pegawai.nama}
+            </td>
+
+            <td>
+                ${x.keterangan ?? "-"}
+            </td>
+
+            <td>
+
+                <button
+                    class="btnDeleteTK"
+                    data-id="${x.id}">
+
+                    🗑️ Hapus
+
+                </button>
+
+            </td>
+
+        </tr>
+
+    `).join("");
+
+}
+
+function tambahPegawaiTK(pegawai) {
+
+  if (
+
+    daftarPegawaiTK.some(
+
+      x => x.id === pegawai.id
+
+    )
+
+  ) {
+
+    alert("Pegawai sudah dipilih.");
+
+    return;
+
+  }
+
+  daftarPegawaiTK.push(pegawai);
+
+  renderDaftarPegawaiTK();
+
+  document.getElementById("pegawaiTKSearch").value = "";
+
+  document.getElementById("pegawaiTKResult").innerHTML = "";
+
+}
+
+function renderDaftarPegawaiTK() {
+
+  const box =
+    document.getElementById("pegawaiTKContainer");
+
+  box.innerHTML = daftarPegawaiTK.map((p, i) => `
+
+        <div class="pegawai-selected">
+
+            <span>
+
+                ${p.nama}
+
+            </span>
+
+            <button
+                class="btnRemovePegawai"
+                data-index="${i}">
+
+                ✕
+
+            </button>
+
+        </div>
+
+    `).join("");
+
+}
+
+async function cariPegawaiTK(keyword) {
+
+  if (keyword.length < 2) {
+
+    document.getElementById("pegawaiTKResult").innerHTML = "";
+
+    return;
+
+  }
+
+  const { data, error } = await supabase
+
+    .from("pegawai")
+
+    .select("id,nama")
+
+    .ilike("nama", `%${keyword}%`)
+
+    .eq("aktif", true)
+
+    .order("nama");
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+
+  }
+
+  const result =
+    document.getElementById("pegawaiTKResult");
+
+  result.innerHTML = data.map(p => `
+
+        <div
+            class="pegawai-item"
+            data-id="${p.id}"
+            data-nama="${p.nama}">
+
+            ${p.nama}
+
+        </div>
+
+    `).join("");
+
+}
+
 async function simpanPengajuanDl() {
 
   const tglMulai =
@@ -1800,6 +2194,21 @@ async function simpanPengajuanDl() {
 
     });
 
+ const pegawaiIds =
+    pesertaDipilih.map(x => x.id);
+
+await updateTKBerdasarkanRentangTanggal(
+
+    pegawaiIds,
+
+    tglMulai,
+
+    tglSelesai,
+
+    KETERANGAN_TK.PENGAJUAN_DL
+
+);
+
   alert(
     "Pengajuan berhasil disimpan"
   );
@@ -1991,6 +2400,8 @@ async function simpanPengajuanCutiSakit() {
     .select()
     .single();
 
+
+
   if (pengajuanError) {
 
     console.error(pengajuanError);
@@ -2090,6 +2501,18 @@ async function simpanPengajuanCutiSakit() {
     return;
 
   }
+
+  await updateTKBerdasarkanRentangTanggal(
+
+    [pegawaiLogin.id],
+
+    tanggalMulai,
+
+    tanggalSelesai,
+
+    KETERANGAN_TK.PENGAJUAN_CUTI
+
+  );
 
   document.getElementById("tanggalMulai").value = "";
   document.getElementById("tanggalSelesai").value = "";
@@ -2336,6 +2759,12 @@ async function simpanPengajuanCutiTahunan() {
         "MENUNGGU"
 
     });
+
+  await updateTKKarenaCutiTahunan(
+    pegawai.id,
+    tanggalCutiDipilih,
+    KETERANGAN_TK.PENGAJUAN_CUTI
+  );
 
   tanggalCutiDipilih = [];
 
@@ -2978,7 +3407,8 @@ function badgeStatus(status) {
 
 }
 
-async function loadPegawaiDL() {
+async function
+  loadPegawaiDL() {
 
   const {
 
@@ -3416,9 +3846,42 @@ async function hapusPengajuanDl(id) {
 
   }
 
-  alert("Pengajuan berhasil dihapus.");
+ const { data: detail } = await supabase
 
-  loadRiwayatDl();
+  .from("pengajuan")
+
+  .select(`
+      pengajuan_anggota(
+          pegawai_id
+      ),
+      dl_detail(
+          tanggal_mulai,
+          tanggal_selesai
+      )
+  `)
+
+  .eq("id", id)
+
+  .single();
+
+  const pegawaiIds =
+    detail.pengajuan_anggota.map(
+        x => x.pegawai_id
+    );
+
+for (const pegawaiId of pegawaiIds) {
+
+    await refreshKeteranganTKRentang(
+
+        pegawaiId,
+
+        detail.dl_detail[0].tanggal_mulai,
+
+        detail.dl_detail[0].tanggal_selesai
+
+    );
+
+}
 
   alert("Pengajuan berhasil dihapus.");
 
@@ -3484,6 +3947,31 @@ async function hapusPengajuanCutiSakit(id) {
 
   }
 
+  const {
+    data: detail
+  } = await supabase
+
+    .from("cuti_sakit_detail")
+
+    .select(`
+    tanggal_mulai,
+    tanggal_selesai
+  `)
+
+    .eq("pengajuan_id", id)
+
+    .single();
+
+  await refreshKeteranganTKRentang(
+
+    pegawaiLogin.id,
+
+    detail.tanggal_mulai,
+
+    detail.tanggal_selesai
+
+  );
+
   alert("Pengajuan berhasil dihapus.");
 
   await loadRiwayatCutiSakit();
@@ -3547,6 +4035,22 @@ async function hapusPengajuanCutiTahunan(id) {
     return;
 
   }
+
+  const { data: tanggalCuti } = await supabase
+
+    .from("cuti_tahunan_tanggal")
+
+    .select("tanggal")
+
+    .eq("pengajuan_id", id);
+
+  await refreshKeteranganTKTanggal(
+
+    pegawaiLogin.id,
+
+    tanggalCuti.map(x => x.tanggal)
+
+  );
 
   alert("Pengajuan berhasil dihapus.");
 
@@ -3978,6 +4482,33 @@ async function loadReviewPengajuan() {
 
   }
 
+  const urutanStatus = {
+  "MENUNGGU": 1,
+  "DIPROSES": 2,
+  "DITOLAK": 3,
+  "SELESAI": 4
+};
+
+data.sort((a, b) => {
+
+  const statusA =
+    urutanStatus[a.status] ?? 99;
+
+  const statusB =
+    urutanStatus[b.status] ?? 99;
+
+  if (statusA !== statusB) {
+    return statusA - statusB;
+  }
+
+  // Jika status sama, urutkan berdasarkan tanggal mulai
+  const tglA = a.dl_detail?.[0]?.tanggal_mulai ?? "";
+  const tglB = b.dl_detail?.[0]?.tanggal_mulai ?? "";
+
+  return new Date(tglA) - new Date(tglB);
+
+});
+
   tbody.innerHTML = "";
 
   data.forEach(item => {
@@ -4198,7 +4729,7 @@ async function isiModalDetail(id) {
   const previewFormTTD =
     document.getElementById("previewFormTTD");
 
-    const cardpreviewFormTTD =
+  const cardpreviewFormTTD =
     document.getElementById("card-preview-ttd");
 
   const btnDownload =
@@ -4478,12 +5009,12 @@ async function isiModalDetail(id) {
   }
 
   if (formTTD) {
-  const { data: signedTTD } =
-    await supabase.storage
-      .from("form_cuti_ttd")
-      .createSignedUrl(formTTD.file_url, 600);
+    const { data: signedTTD } =
+      await supabase.storage
+        .from("form_cuti_ttd")
+        .createSignedUrl(formTTD.file_url, 600);
 
-  previewFormTTD.innerHTML = `
+    previewFormTTD.innerHTML = `
 <iframe
     src="${signedTTD.signedUrl}"
     class="preview-file">
@@ -4512,16 +5043,6 @@ async function isiModalDetail(id) {
       }
 
     };
-
-  // document
-  //   .getElementById("btnSudahDitandatangani")
-  //   .onclick = async () => {
-
-  //     await sudahDitandatangani(
-  //       window.currentPengajuanId
-  //     );
-
-  //   };
 
   document
     .getElementById("btnSudahDitandatangani")
@@ -4601,17 +5122,6 @@ async function uploadFormTTD() {
 
   }
 
-  // 2. Simpan ke tabel dokumen
-  // const { error: dokumenError } = await supabase
-  //   .from("dokumen")
-  //   .insert({
-  //     pengajuan_id: window.currentPengajuanIdTTD,
-  //     jenis_dokumen: "FORM_CUTI_TTD",
-  //     file_url: fileName
-  //   });
-
-  // if (dokumenError) return;
-
   const payload = {
     pengajuan_id: window.currentPengajuanIdTTD,
     jenis_dokumen: "FORM_CUTI_TTD",
@@ -4655,9 +5165,74 @@ async function sudahDitandatangani(id) {
 
   }
 
+  // ===== UPDATE TK =====
+
+  const { data, error: detailError } = await supabase
+
+    .from("pengajuan")
+
+    .select(`
+      jenis_pengajuan,
+
+      pengajuan_anggota(
+        pegawai_id,
+        is_pengaju
+      ),
+
+      cuti_sakit_detail(
+        tanggal_mulai,
+        tanggal_selesai
+      ),
+
+      cuti_tahunan_tanggal(
+        tanggal
+      )
+    `)
+
+    .eq("id", id)
+
+    .single();
+
+  if (!detailError) {
+
+    const pegawaiId =
+      data.pengajuan_anggota.find(x => x.is_pengaju).pegawai_id;
+
+    if (data.jenis_pengajuan === "CUTI_SAKIT") {
+
+      await updateTKBerdasarkanRentangTanggal(
+
+        [pegawaiId],
+
+        data.cuti_sakit_detail[0].tanggal_mulai,
+
+        data.cuti_sakit_detail[0].tanggal_selesai,
+
+        KETERANGAN_TK.CUTISAKIT
+
+      );
+
+    } else if (data.jenis_pengajuan === "CUTI_TAHUNAN") {
+
+      await updateTKKarenaCutiTahunan(
+
+        [pegawaiId],
+
+        data.cuti_tahunan_tanggal.map(x => x.tanggal),
+
+        KETERANGAN_TK.CUTITAHUNAN
+
+      );
+
+    }
+
+  }
+
+  // =====================
+
   document
-        .getElementById("modalUploadTTD")
-        .close();
+    .getElementById("modalUploadTTD")
+    .close();
 
   await loadReviewPengajuan();
 
@@ -5003,7 +5578,7 @@ function renderDashboardTable(data, tbodyId) {
 
   tbody.innerHTML = data.map(x => `
 
-    <tr>
+    <tr align="center">
 
         <td>${x.nomor_pengajuan}</td>
 
@@ -5358,50 +5933,50 @@ window.initReviewPresensiCuti = async function () {
 
 }
 
-async function lihatSuratTTD(pengajuanId){
+async function lihatSuratTTD(pengajuanId) {
 
-    const { data, error } = await supabase
+  const { data, error } = await supabase
 
-        .from("dokumen")
+    .from("dokumen")
 
-        .select("file_url")
+    .select("file_url")
 
-        .eq("pengajuan_id", pengajuanId)
+    .eq("pengajuan_id", pengajuanId)
 
-        .eq("jenis_dokumen", "FORM_CUTI_TTD")
+    .eq("jenis_dokumen", "FORM_CUTI_TTD")
 
-        .single();
+    .single();
 
-    if(error){
+  if (error) {
 
-        alert("Dokumen tidak ditemukan.");
+    alert("Dokumen tidak ditemukan.");
 
-        return;
+    return;
 
-    }
+  }
 
-    const { data: signed, error: signedError } =
-        await supabase.storage
+  const { data: signed, error: signedError } =
+    await supabase.storage
 
-        .from("form_cuti_ttd")
+      .from("form_cuti_ttd")
 
-        .createSignedUrl(
-            data.file_url,
-            600
-        );
+      .createSignedUrl(
+        data.file_url,
+        600
+      );
 
-    if(signedError){
+  if (signedError) {
 
-        alert("Gagal membuka dokumen.");
+    alert("Gagal membuka dokumen.");
 
-        return;
+    return;
 
-    }
+  }
 
-    window.open(
-        signed.signedUrl,
-        "_blank"
-    );
+  window.open(
+    signed.signedUrl,
+    "_blank"
+  );
 
 }
 
@@ -5616,6 +6191,44 @@ window.initReviewPresensiDL = async function () {
         window.currentPengajuanId
       );
 
+      const { data, error } = await supabase
+        .from("pengajuan")
+        .select(`
+      pengajuan_anggota(
+          pegawai_id
+      ),
+      dl_detail(
+          tanggal_mulai,
+          tanggal_selesai
+      )
+         `)
+        .eq("id", window.currentPengajuanId)
+        .single();
+
+      if (error) {
+        console.error(error);
+      }
+
+      const pegawaiIds =
+        data.pengajuan_anggota.map(x => x.pegawai_id);
+
+      const tanggalMulai =
+        data.dl_detail[0].tanggal_mulai;
+
+      const tanggalSelesai =
+        data.dl_detail[0].tanggal_selesai;
+
+      await updateTKBerdasarkanRentangTanggal(
+
+        pegawaiIds,
+
+        tanggalMulai,
+
+        tanggalSelesai,
+
+        KETERANGAN_TK.DL
+
+      );
     };
 
   document
@@ -5698,13 +6311,35 @@ async function loadReviewPresensiDL() {
     jumlah_hari
 )
     `)
-    .eq("pengajuan_anggota.is_pengaju", true)
     .eq("jenis_pengajuan", "DL")
     .is("deleted_at", null)
 
-  data.sort((a, b) =>
-    new Date(a.tanggal_awal) - new Date(b.tanggal_awal)
-  );
+  const urutanStatus = {
+  "MENUNGGU": 1,
+  "DIPROSES": 2,
+  "DITOLAK": 3,
+  "SELESAI": 4
+};
+
+data.sort((a, b) => {
+
+  const statusA =
+    urutanStatus[a.status] ?? 99;
+
+  const statusB =
+    urutanStatus[b.status] ?? 99;
+
+  if (statusA !== statusB) {
+    return statusA - statusB;
+  }
+
+  // Jika status sama, urutkan berdasarkan tanggal mulai
+  const tglA = a.dl_detail?.[0]?.tanggal_mulai ?? "";
+  const tglB = b.dl_detail?.[0]?.tanggal_mulai ?? "";
+
+  return new Date(tglA) - new Date(tglB);
+
+});
 
 
   if (error) {
@@ -5731,8 +6366,14 @@ async function loadReviewPresensiDL() {
 
   data.forEach(item => {
 
-    const pegawai =
-      item.pengajuan_anggota?.[0]?.pegawai?.nama ?? "-";
+    const daftarNama =
+  item.pengajuan_anggota
+    ?.map(x =>
+      x.is_pengaju
+        ? `👤 <b>${x.pegawai.nama}</b>`
+        : `• ${x.pegawai.nama}`
+    )
+    .join("<br>") ?? "-";
 
     const jenis = item.jenis_pengajuan;
 
@@ -5758,7 +6399,7 @@ async function loadReviewPresensiDL() {
 
 <td>${item.nomor_pengajuan}</td>
 
-<td>${pegawai}</td>
+<td>${daftarNama}</td>
 
 <td>${jenis}</td>
 
@@ -5870,6 +6511,7 @@ async function approvePresensiDL(id) {
     "Perubahan status presensi selesai."
 
   );
+
 
   document
     .getElementById("modalDetailPresensiDL")
@@ -6066,5 +6708,412 @@ ${p.is_pengaju
       "modalDetailPresensiDL"
     )
     .showModal();
+
+}
+
+async function updateTKBerdasarkanRentangTanggal(
+  pegawaiIds,
+  tanggalMulai,
+  tanggalSelesai,
+  keterangan
+) {
+  const { error } = await supabase
+
+    .from("tk_bulanan")
+
+    .update({
+
+      keterangan,
+
+      updated_at:
+        new Date().toISOString()
+
+    })
+
+    .in("pegawai_id", pegawaiIds)
+
+    .gte("tanggal", tanggalMulai)
+
+    .lte("tanggal", tanggalSelesai)
+
+    .is("deleted_at", null);
+
+  if (error) {
+
+    console.error(error);
+
+  }
+
+}
+
+async function updateTKKarenaCutiTahunan(
+  pegawaiId,
+  daftarTanggal,
+  keterangan
+) {
+
+  const { error } = await supabase
+
+    .from("tk_bulanan")
+
+    .update({
+
+      keterangan: keterangan,
+
+      updated_at:
+        new Date().toISOString()
+
+    })
+
+    .eq("pegawai_id", pegawaiId)
+
+    .in("tanggal", daftarTanggal)
+
+    .is("deleted_at", null);
+
+  if (error) {
+
+    console.error(error);
+
+  }
+
+}
+
+async function updateTKKarenaPengajuanDL(
+  daftarPegawai,
+  tanggal
+) {
+
+  const pegawaiIds = daftarPegawai.map(x => x.id);
+
+  const { error } = await supabase
+
+    .from("tk_bulanan")
+
+    .update({
+
+      keterangan: KETERANGAN_TK.PENGAJUAN_DL,
+
+      updated_at: new Date().toISOString()
+
+    })
+
+    .in("pegawai_id", pegawaiIds)
+
+    .eq("tanggal", tanggal)
+
+    .is("deleted_at", null);
+
+  if (error) {
+
+    console.error(error);
+
+  }
+
+}
+
+async function cekKeteranganTK(pegawaiId, tanggal) {
+
+  const { data, error } = await supabase
+    .from("pengajuan")
+    .select(`
+      jenis_pengajuan,
+      status,
+
+      pengajuan_anggota!inner(
+        pegawai_id
+      ),
+
+      cuti_sakit_detail(
+        tanggal_mulai,
+        tanggal_selesai
+      ),
+
+      cuti_tahunan_tanggal(
+        tanggal
+      ),
+
+      dl_detail(
+        tanggal_mulai,
+        tanggal_selesai
+      )
+    `)
+    .eq("pengajuan_anggota.pegawai_id", pegawaiId)
+    .in("jenis_pengajuan", [
+      "CUTI_SAKIT",
+      "CUTI_TAHUNAN",
+      "DL"
+    ])
+    .is("deleted_at", null);
+
+  if (error) {
+
+    console.error(error);
+
+    return KETERANGAN_TK.TK;
+
+  }
+
+
+
+  for (const p of data) {
+    const sudahDisetujui =
+      p.status === "DISETUJUI" ||
+      p.status === "SELESAI";
+
+    // ==========================
+    // CUTI SAKIT
+    // ==========================
+
+    if (p.jenis_pengajuan === "CUTI_SAKIT") {
+
+      const d = p.cuti_sakit_detail?.[0];
+
+      if (
+        d &&
+        tanggal >= d.tanggal_mulai &&
+        tanggal <= d.tanggal_selesai
+      ) {
+
+        return sudahDisetujui
+          ? KETERANGAN_TK.CUTISAKIT
+          : KETERANGAN_TK.PENGAJUAN_CUTI;
+      }
+
+    }
+
+    // ==========================
+    // CUTI TAHUNAN
+    // ==========================
+
+    if (p.jenis_pengajuan === "CUTI_TAHUNAN") {
+
+      const ada =
+        p.cuti_tahunan_tanggal?.some(
+          x => x.tanggal === tanggal
+        );
+
+      if (ada) {
+
+        return sudahDisetujui
+          ? KETERANGAN_TK.CUTITAHUNAN
+          : KETERANGAN_TK.PENGAJUAN_CUTI;
+
+      }
+
+    }
+
+    // ==========================
+    // DL
+    // ==========================
+
+    if (p.jenis_pengajuan === "DL") {
+
+      const d = p.dl_detail?.[0];
+
+      if (
+        d &&
+        tanggal >= d.tanggal_mulai &&
+        tanggal <= d.tanggal_selesai
+      ) {
+
+        return sudahDisetujui
+          ? KETERANGAN_TK.DL
+          : KETERANGAN_TK.PENGAJUAN_DL;
+      }
+
+    }
+
+  }
+
+  return KETERANGAN_TK.TK;
+
+}
+
+async function refreshKeteranganTKRentang(
+  pegawaiId,
+  tanggalMulai,
+  tanggalSelesai
+) {
+
+  let t = new Date(tanggalMulai);
+  const akhir = new Date(tanggalSelesai);
+
+  while (t <= akhir) {
+
+    const tanggal = [
+      t.getFullYear(),
+      String(t.getMonth() + 1).padStart(2, "0"),
+      String(t.getDate()).padStart(2, "0")
+    ].join("-");
+
+    const keterangan =
+      await cekKeteranganTK(
+        pegawaiId,
+        tanggal
+      );
+
+    const { error } = await supabase
+
+      .from("tk_bulanan")
+
+      .update({
+
+        keterangan,
+
+        updated_at: new Date()
+
+      })
+
+      .eq("pegawai_id", pegawaiId)
+
+      .eq("tanggal", tanggal)
+
+      .is("deleted_at", null);
+
+    if (error) {
+
+      console.error(error);
+
+    }
+
+    t.setDate(t.getDate() + 1);
+
+  }
+
+}
+
+async function refreshKeteranganTKTanggal(
+  pegawaiId,
+  daftarTanggal
+) {
+
+  for (const tanggal of daftarTanggal) {
+
+    const keterangan =
+      await cekKeteranganTK(
+        pegawaiId,
+        tanggal
+      );
+
+    const { error } = await supabase
+
+      .from("tk_bulanan")
+
+      .update({
+
+        keterangan,
+
+        updated_at: new Date()
+
+      })
+
+      .eq("pegawai_id", pegawaiId)
+
+      .eq("tanggal", tanggal)
+
+      .is("deleted_at", null);
+
+    if (error) {
+
+      console.error(error);
+
+    }
+
+  }
+
+}
+
+async function loadRekapTK() {
+
+  const { data, error } =
+    await supabase.rpc(
+      "get_rekap_tk_tahun_ini"
+    );
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+
+  }
+
+  const container =
+    document.getElementById(
+      "rekapTKContainer"
+    );
+
+  container.innerHTML = "";
+
+  data.forEach(item => {
+
+    container.innerHTML += `
+
+      <div class="rekap-item">
+
+        <div
+          class="rekap-header"
+          onclick="toggleRekapTK(this)">
+
+          <span>
+
+            ▶ ${item.nama}
+
+          </span>
+
+          <span>
+
+            ${item.jumlah} Hari
+
+          </span>
+
+        </div>
+
+        <div class="rekap-detail">
+
+          ${item.tanggal.map(t => `
+
+            <div>
+
+              • ${formatTanggal(t)}
+
+            </div>
+
+          `).join("")}
+
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+}
+
+window.toggleRekapTK =function(header){
+
+    const detail =
+        header.nextElementSibling;
+
+    const icon =
+        header.querySelector("span");
+
+    if(detail.classList.contains("show")){
+
+        detail.classList.remove("show");
+
+        icon.innerHTML =
+            icon.innerHTML.replace("▼","▶");
+
+    }else{
+
+        detail.classList.add("show");
+
+        icon.innerHTML =
+            icon.innerHTML.replace("▶","▼");
+
+    }
 
 }

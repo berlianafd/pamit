@@ -128,6 +128,18 @@ Review Pengajuan Cuti
   </span>
   
   </button>
+
+  <button
+  class="menu-btn"
+  data-page="presensiTK">
+  
+  <span class="material-symbols-rounded">error</span>
+  
+  <span class="menu-text">
+  Presensi Tidak Hadir
+  </span>
+  
+  </button>
   
   <button
   id="logoutBtn">
