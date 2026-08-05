@@ -124,7 +124,7 @@ export function pengajuanCutiTahunanPage() {
     </div>
 
 </div>
-
+</div>
 <br>
 
 <div class="card">
