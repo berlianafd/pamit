@@ -248,6 +248,8 @@ export async function generateFormCuti(pengajuanId) {
 
             nip_atasan2: atasan.nip_atasan2,
 
+            paraf_jabatan: atasan.jabatan_atasan,
+
             jenis_pegawai:
                 pegawai.jenis_pegawai === "PNS"
                     ? "Pegawai Negeri Sipil"
@@ -625,7 +627,7 @@ async function getAtasan(pegawai) {
         console.log("JABATAN PEGAWAI:", pegawai.jabatan);
         const { data: kasubbag, error: err1 } = await supabase
             .from("pegawai")
-            .select("nama,nip")
+            .select("nama,nip,jabatan")
             .eq("unit_kerja", pegawai.unit_kerja)
             .ilike("jabatan", "%Kepala Sub Bagian%")
             .single();
@@ -633,10 +635,11 @@ async function getAtasan(pegawai) {
         if (err1) console.error(err1);
 
         atasan1 = kasubbag;
+        console.log("ATASAN 1:", atasan1);
 
         const { data: sekretaris, error: err2 } = await supabase
             .from("pegawai")
-            .select("nama,nip")
+            .select("nama,nip,jabatan")
             .ilike("jabatan", "%Sekretaris%")
             .single();
 
@@ -651,7 +654,7 @@ async function getAtasan(pegawai) {
 
         const { data: kabid, error: err1 } = await supabase
             .from("pegawai")
-            .select("nama,nip")
+            .select("nama,nip,jabatan")
             .eq("unit_kerja", pegawai.unit_kerja)
             .ilike("jabatan", "%Kepala Bidang%")
             .single();
@@ -659,10 +662,11 @@ async function getAtasan(pegawai) {
         if (err1) console.error(err1);
 
         atasan1 = kabid;
+        console.log("ATASAN 1:", atasan1);
 
         const { data: kadis, error: err2 } = await supabase
             .from("pegawai")
-            .select("nama,nip")
+            .select("nama,nip,jabatan")
             .ilike("jabatan", "%Kepala Dinas%")
             .single();
 
@@ -684,7 +688,10 @@ async function getAtasan(pegawai) {
             atasan2?.nama ?? "",
 
         nip_atasan2:
-            atasan2?.nip ?? ""
+            atasan2?.nip ?? "",
+
+        jabatan_atasan:
+            atasan1.jabatan ?? "",
 
     };
 
