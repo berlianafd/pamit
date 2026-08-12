@@ -1820,3 +1820,594 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     gap:8px;
 
 }
+
+.rt-rw-input {
+    display: flex;
+    gap: 12px;
+}
+
+.input-prefix {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+}
+
+.input-prefix span {
+    padding: 10px 12px;
+    background: #f3f4f6;
+    font-weight: 600;
+    color: #555;
+}
+
+.input-prefix input {
+    border: none;
+    outline: none;
+    width: 70px;
+    padding: 10px;
+    text-align: center;
+}
+.alamat-row {
+    display: flex;
+    gap: 12px;
+}
+
+.alamat-prefix {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border: 1px solid #d6dbe8;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    transition: .2s;
+}
+
+.alamat-prefix:focus-within {
+    border-color: #4a90ff;
+    box-shadow: 0 0 0 3px rgba(74, 144, 255, .12);
+}
+
+.alamat-prefix span {
+    flex-shrink: 0;
+    padding: 11px 14px;
+    background: #f3f6fa;
+    color: #4a5568;
+    font-weight: 600;
+    font-size: 13px;
+    border-right: 1px solid #e1e6ee;
+}
+
+.alamat-prefix input {
+    flex: 1;
+    min-width: 0;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 11px 14px;
+    background: transparent;
+}
+
+.alamat-prefix.rt-rw {
+    width: 150px;
+}
+
+.alamat-prefix.rt-rw input {
+    width: 70px;
+    text-align: center;
+}
+
+/* =====================================================
+   FORM DETAIL PENGAJUAN
+   ===================================================== */
+
+.form-detail-pengajuan {
+    width: 100%;
+}
+
+/* Judul section */
+.form-detail-pengajuan .form-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #24344d;
+}
+
+/* Jarak antar bagian */
+.form-detail-pengajuan .form-group {
+    margin-bottom: 22px;
+}
+
+
+/* =====================================================
+   INPUT & TEXTAREA
+   ===================================================== */
+
+.form-detail-pengajuan input,
+.form-detail-pengajuan textarea {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid #d3dceb;
+    border-radius: 10px;
+    background: #fff;
+    color: #344054;
+    font-family: inherit;
+    font-size: 14px;
+    transition: 
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+.form-detail-pengajuan input {
+    height: 44px;
+    padding: 10px 14px;
+}
+
+.form-detail-pengajuan textarea {
+    padding: 13px 14px;
+    resize: vertical;
+}
+
+.form-detail-pengajuan input:focus,
+.form-detail-pengajuan textarea:focus {
+    outline: none;
+    border-color: #4d8df7;
+    box-shadow: 0 0 0 3px rgba(77, 141, 247, .12);
+}
+
+.form-detail-pengajuan input::placeholder,
+.form-detail-pengajuan textarea::placeholder {
+    color: #98a2b3;
+}
+
+
+/* =====================================================
+   ALAMAT
+   ===================================================== */
+
+.alamat-prefix {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    overflow: hidden;
+
+    border: 1px solid #d3dceb;
+    border-radius: 10px;
+    background: #fff;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+.alamat-prefix:focus-within {
+    border-color: #4d8df7;
+    box-shadow: 0 0 0 3px rgba(77, 141, 247, .12);
+}
+
+.alamat-prefix span {
+    display: flex;
+    align-items: center;
+
+    flex-shrink: 0;
+
+    padding: 0 14px;
+
+    background: #f3f6fa;
+    border-right: 1px solid #dbe2ec;
+
+    color: #344054;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.alamat-prefix input {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+
+    height: 44px;
+    flex: 1;
+    min-width: 0;
+}
+
+
+/* =====================================================
+   RT / RW
+   ===================================================== */
+
+.alamat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.alamat-prefix.rt-rw {
+    width: 100%;
+}
+
+.alamat-prefix.rt-rw span {
+    min-width: 42px;
+    justify-content: center;
+}
+
+.alamat-prefix.rt-rw input {
+    text-align: left;
+}
+
+
+/* =====================================================
+   FILE UPLOAD
+   ===================================================== */
+
+.form-detail-pengajuan .file-upload-area {
+    position: relative;
+
+    width: 100%;
+    min-height: 120px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+
+    border: 2px dashed #b8d0f8;
+    border-radius: 12px;
+
+    background: #fbfdff;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+}
+
+.form-detail-pengajuan .file-upload-area:hover {
+    background: #f5f9ff;
+    border-color: #7faaf0;
+}
+
+
+/* =====================================================
+   TOMBOL
+   ===================================================== */
+
+.form-detail-pengajuan .form-action {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-top: 28px;
+    padding-top: 20px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+.form-detail-pengajuan .form-action .btn-primary {
+    min-width: 110px;
+    height: 44px;
+
+    border: none;
+    border-radius: 9px;
+
+    padding: 0 20px;
+
+    font-weight: 600;
+    cursor: pointer;
+
+    background: #1769c2;
+    color: white;
+
+    transition:
+        background .2s ease,
+        transform .1s ease;
+}
+
+.form-detail-pengajuan .form-action .btn-primary:hover {
+    background: #1258a5;
+}
+
+.form-detail-pengajuan .form-action .btn-primary:active {
+    transform: translateY(1px);
+}
+
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+@media screen and (max-width: 768px) {
+
+    .form-detail-pengajuan {
+        padding: 0;
+    }
+
+    .alamat-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .form-detail-pengajuan .form-action {
+        justify-content: stretch;
+    }
+
+    .form-detail-pengajuan .form-action .btn-primary {
+        width: 100%;
+    }
+
+}
+
+/* ================================
+   BUKTI PERSETUJUAN ATASAN
+   ================================ */
+
+.bukti-persetujuan {
+    margin-top: 26px;
+}
+
+.bukti-persetujuan .form-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 12px;
+
+    font-size: 16px;
+    font-weight: 700;
+    color: #24344d;
+}
+
+
+/* Area upload */
+
+.bukti-persetujuan .file-upload-area {
+    width: 100%;
+    min-height: 125px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    padding: 22px 26px;
+
+    border: 2px dashed #b8d0f8;
+    border-radius: 12px;
+
+    background: #fbfdff;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+
+/* Hover */
+
+.bukti-persetujuan .file-upload-area:hover {
+    background: #f5f9ff;
+    border-color: #6fa3ee;
+
+    box-shadow: 0 4px 12px rgba(50, 100, 180, .08);
+}
+
+
+/* Icon */
+
+.file-upload-icon {
+    width: 64px;
+    height: 64px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #eaf2ff;
+
+    font-size: 30px;
+}
+
+
+/* Tulisan */
+
+.file-upload-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.file-upload-content strong {
+    font-size: 16px;
+    color: #24344d;
+}
+
+.file-upload-content span {
+    font-size: 13px;
+    color: #667085;
+}
+
+
+/* Nama file */
+
+.file-upload-content .file-name {
+    margin-top: 4px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    color: #1769c2;
+}
+
+
+/* ================================
+   MOBILE
+   ================================ */
+
+@media screen and (max-width: 768px) {
+
+    .bukti-persetujuan .file-upload-area {
+        min-height: 110px;
+
+        padding: 18px;
+
+        gap: 14px;
+    }
+
+    .file-upload-icon {
+        width: 52px;
+        height: 52px;
+
+        font-size: 24px;
+    }
+
+    .file-upload-content strong {
+        font-size: 14px;
+    }
+
+    .file-upload-content span {
+        font-size: 12px;
+    }
+
+}
+
+/* =================================
+   SURAT SAKIT
+   ================================= */
+
+.bukti-surat-sakit {
+    margin-top: 26px;
+}
+
+.bukti-surat-sakit .form-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 12px;
+
+    font-size: 16px;
+    font-weight: 700;
+    color: #24344d;
+}
+
+
+.bukti-surat-sakit .file-upload-area {
+    width: 100%;
+    min-height: 120px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    padding: 22px 26px;
+
+    border: 2px dashed #b8d0f8;
+    border-radius: 12px;
+
+    background: #fbfdff;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+
+.bukti-surat-sakit .file-upload-area:hover {
+    background: #f5f9ff;
+    border-color: #6fa3ee;
+
+    box-shadow:
+        0 4px 12px rgba(50, 100, 180, .08);
+}
+
+
+.bukti-surat-sakit .file-upload-icon {
+    width: 64px;
+    height: 64px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #eaf2ff;
+
+    font-size: 30px;
+}
+
+
+.bukti-surat-sakit .file-upload-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+
+.bukti-surat-sakit .file-upload-content strong {
+    font-size: 16px;
+    color: #24344d;
+}
+
+
+.bukti-surat-sakit .file-upload-content span {
+    font-size: 13px;
+    color: #667085;
+}
+
+
+.bukti-surat-sakit .file-upload-content .file-name {
+    margin-top: 4px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    color: #1769c2;
+}
+
+
+/* MOBILE */
+
+@media screen and (max-width: 768px) {
+
+    .bukti-surat-sakit .file-upload-area {
+        min-height: 105px;
+        padding: 18px;
+
+        gap: 14px;
+    }
+
+    .bukti-surat-sakit .file-upload-icon {
+        width: 52px;
+        height: 52px;
+
+        font-size: 24px;
+    }
+
+    .bukti-surat-sakit .file-upload-content strong {
+        font-size: 14px;
+    }
+
+    .bukti-surat-sakit .file-upload-content span {
+        font-size: 12px;
+    }
+
+}

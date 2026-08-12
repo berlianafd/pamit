@@ -19,6 +19,8 @@ export function pengajuanCutiSakitPage() {
             class="header-icon">
     </div>
 
+    <div class="form-detail-pengajuan">
+
     <div class="tanggal-row">
 
     <div class="tanggal-item">
@@ -46,26 +48,146 @@ export function pengajuanCutiSakitPage() {
 
     <div class="form-group">
 
-        <label>📍 Alamat Saat Cuti</label>
+    <label>📍 Alamat Saat Cuti</label>
 
-        <textarea
-            id="alamatCutiSakit"
-            rows="4"
-            placeholder="Masukkan alamat selama cuti..."></textarea>
+    <input
+        type="text"
+        id="alamatCutiSakit"
+        placeholder="Nama jalan, nomor rumah, dusun, dll.">
+
+</div>
+
+
+<div class="form-group">
+
+    <label>RT / RW</label>
+
+    <div class="alamat-row">
+
+        <div class="alamat-prefix rt-rw">
+
+            <span>RT</span>
+
+            <input
+                type="text"
+                id="rtCutiSakit"
+                inputmode="numeric"
+                maxlength="3"
+                placeholder="00">
+
+        </div>
+
+
+        <div class="alamat-prefix rt-rw">
+
+            <span>RW</span>
+
+            <input
+                type="text"
+                id="rwCutiSakit"
+                inputmode="numeric"
+                maxlength="3"
+                placeholder="00">
+
+        </div>
 
     </div>
 
-    <div class="form-group">
+</div>
 
-        <label>📎 Upload Surat Sakit</label>
+
+<div class="form-group">
+
+    <div class="alamat-prefix">
+
+        <span>Desa/Kel.</span>
 
         <input
-            type="file"
-            id="suratSakit"
-            accept=".pdf,image/*"
-            capture="environment">
+            type="text"
+            id="desaCutiSakit"
+            placeholder="Nama Desa/Kelurahan">
 
     </div>
+
+</div>
+
+
+<div class="form-group">
+
+    <div class="alamat-prefix">
+
+        <span>Kecamatan</span>
+
+        <input
+            type="text"
+            id="kecamatanCutiSakit"
+            placeholder="Nama Kecamatan">
+
+    </div>
+
+</div>
+
+
+<div class="form-group">
+
+    <div class="alamat-prefix">
+
+        <span>Kab/Kota</span>
+
+        <input
+            type="text"
+            id="kotaCutiSakit"
+            placeholder="Kabupaten/Kota">
+
+    </div>
+
+</div>
+
+
+<div class="form-group bukti-surat-sakit">
+
+    <label class="form-section-title">
+        📎 Surat Sakit
+    </label>
+
+    <label
+        for="suratSakit"
+        class="file-upload-area">
+
+        <div class="file-upload-icon">
+            ☁️
+        </div>
+
+        <div class="file-upload-content">
+
+            <strong>
+                Klik untuk memilih file
+            </strong>
+
+            <span>
+                Format PDF, JPG, JPEG, PNG • Maksimal 2MB
+            </span>
+
+            <span
+                id="namaFileSuratSakit"
+                class="file-name">
+
+                Belum ada file dipilih
+
+            </span>
+
+        </div>
+
+    </label>
+
+    <input
+        type="file"
+        id="suratSakit"
+        accept=".pdf,image/*"
+        capture="environment"
+        hidden>
+
+</div>
 
     <div class="form-action">
 
@@ -79,6 +201,7 @@ export function pengajuanCutiSakitPage() {
 
     </div>
 
+</div>
 </div>
 
 <br>

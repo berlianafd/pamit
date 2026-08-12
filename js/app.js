@@ -1451,6 +1451,27 @@ window.initPengajuanDl = async function () {
 window.initPengajuanCutiSakit = async function () {
 
   document
+    .getElementById("suratSakit")
+    ?.addEventListener("change", function () {
+
+      const namaFile =
+        document.getElementById("namaFileSuratSakit");
+
+      if (!this.files.length) {
+
+        namaFile.textContent =
+          "Belum ada file dipilih";
+
+        return;
+
+      }
+
+      namaFile.textContent =
+        this.files[0].name;
+
+    });
+
+  document
     .getElementById(
       "btnSimpanCutiSakit"
     )
@@ -1512,6 +1533,27 @@ function initCalendarCutiTahunan() {
 }
 
 window.initPengajuanCutiTahunan = async function () {
+
+  document
+    .getElementById("persetujuanAtasan")
+    ?.addEventListener("change", function () {
+
+      const namaFile =
+        document.getElementById("namaFilePersetujuan");
+
+      if (!this.files.length) {
+
+        namaFile.textContent =
+          "Belum ada file dipilih";
+
+        return;
+
+      }
+
+      namaFile.textContent =
+        this.files[0].name;
+
+    });
 
   const fileInput = document.getElementById("persetujuanAtasan");
 
@@ -2244,10 +2286,39 @@ async function simpanPengajuanCutiSakit() {
       .getElementById("tanggalSelesai")
       .value;
 
-  const alamatCS =
-    document
-      .getElementById("alamatCutiSakit")
-      .value;
+  const alamat =
+    document.getElementById("alamatCutiSakit").value.trim();
+
+  const rt =
+    document.getElementById("rtCutiSakit").value.trim();
+
+  const rw =
+    document.getElementById("rwCutiSakit").value.trim();
+
+  const desa =
+    document.getElementById("desaCutiSakit").value.trim();
+
+  const kecamatan =
+    document.getElementById("kecamatanCutiSakit").value.trim();
+
+  const kota =
+    document.getElementById("kotaCutiSakit").value.trim();
+
+  const alamatLengkap = [
+    alamat,
+    rt || rw
+      ? `RT ${rt || "-"} RW ${rw || "-"}`
+      : "",
+    desa
+      ? `Desa/Kel. ${desa}`
+      : "",
+    kecamatan
+      ? `Kecamatan ${kecamatan}`
+      : "",
+    kota
+      ? `Kab/Kota ${kota}`
+      : ""
+  ].filter(Boolean).join(", ");
 
   const file =
     document
@@ -2286,6 +2357,8 @@ async function simpanPengajuanCutiSakit() {
     return;
 
   }
+
+  (!alamat || !rt || !rw || !desa || !kecamatan || !kota) && alert("Alamat lengkap wajib diisi.");
 
   const ext =
     file.name
@@ -2460,7 +2533,7 @@ async function simpanPengajuanCutiSakit() {
 
       jumlah_hari: jumlahHari,
 
-      alamat: alamatCS
+      alamat: alamatLengkap
 
     });
 
@@ -2535,10 +2608,30 @@ async function simpanPengajuanCutiTahunan() {
       .trim();
 
   const alamat =
-    document
-      .getElementById("alamatCuti")
-      .value
-      .trim();
+    document.getElementById("alamatCuti").value.trim();
+
+  const rt =
+    document.getElementById("rtCuti").value.trim();
+
+  const rw =
+    document.getElementById("rwCuti").value.trim();
+
+  const desa =
+    document.getElementById("desaCuti").value.trim();
+
+  const kecamatan =
+    document.getElementById("kecamatanCuti").value.trim();
+
+  const kota =
+    document.getElementById("kotaCuti").value.trim();
+
+  const alamatLengkap = [
+    alamat,
+    rt || rw ? `RT ${rt || "-"} RW ${rw || "-"}` : "",
+    desa ? `Desa/Kel. ${desa}` : "",
+    kecamatan ? `Kecamatan ${kecamatan}` : "",
+    kota
+  ].filter(Boolean).join(", ");
 
   const file =
     document
@@ -2562,6 +2655,14 @@ async function simpanPengajuanCutiTahunan() {
   }
 
   if (!alamat) {
+
+    alert("Alamat saat cuti wajib diisi.");
+
+    return;
+
+  }
+
+  if (!rt && !rw && !desa && !kecamatan && !kota) {
 
     alert("Alamat saat cuti wajib diisi.");
 
@@ -2716,7 +2817,7 @@ async function simpanPengajuanCutiTahunan() {
       alasan,
 
       alamat_cuti:
-        alamat
+        alamatLengkap
 
     });
 
@@ -7321,15 +7422,15 @@ async function lihatFormCuti(id) {
 
 }
 
-function ambilTanggalPengajuan(item){
+function ambilTanggalPengajuan(item) {
 
-  if(item.jenis_pengajuan === "CUTI_SAKIT"){
+  if (item.jenis_pengajuan === "CUTI_SAKIT") {
 
     return item.cuti_sakit_detail?.[0]?.tanggal_mulai ?? "";
 
   }
 
-  if(item.jenis_pengajuan === "CUTI_TAHUNAN"){
+  if (item.jenis_pengajuan === "CUTI_TAHUNAN") {
 
     return item.cuti_tahunan_tanggal?.[0]?.tanggal ?? "";
 

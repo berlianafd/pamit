@@ -74,7 +74,7 @@ export function pengajuanCutiTahunanPage() {
     
     <br>
 
-  <div class="card">
+  <div class="form-detail-pengajuan">
 
     <h3>Detail Pengajuan</h3>
 
@@ -91,25 +91,129 @@ export function pengajuanCutiTahunanPage() {
 
     <div class="form-group">
 
-        <label>📍 Alamat Saat Cuti</label>
+    <label>📍 Alamat Saat Cuti</label>
 
-        <textarea
-            id="alamatCuti"
-            rows="4"
-            placeholder="Masukkan alamat selama cuti..."></textarea>
+    <input
+        type="text"
+        id="alamatCuti"
+        placeholder="Nama jalan, nomor rumah, dusun...">
+
+</div>
+
+<div class="form-group">
+
+    <div class="alamat-row">
+
+        <div class="alamat-prefix rt-rw">
+            <span>RT</span>
+            <input
+                type="text"
+                id="rtCuti"
+                inputmode="numeric"
+                maxlength="3"
+                placeholder="00">
+        </div>
+
+        <div class="alamat-prefix rt-rw">
+            <span>RW</span>
+            <input
+                type="text"
+                id="rwCuti"
+                inputmode="numeric"
+                maxlength="3"
+                placeholder="00">
+        </div>
 
     </div>
 
-    <div class="form-group">
+</div>
 
-        <label>📎 Bukti Persetujuan Atasan</label>
+<div class="form-group">
+
+    <div class="alamat-prefix">
+
+        <span>Desa/Kel.</span>
 
         <input
-            type="file"
-            id="persetujuanAtasan"
-            accept=".jpg,.jpeg,.png,image/*">
+            type="text"
+            id="desaCuti"
+            placeholder="Nama Desa/Kelurahan">
 
     </div>
+
+</div>
+
+<div class="form-group">
+
+    <div class="alamat-prefix">
+
+        <span>Kecamatan</span>
+
+        <input
+            type="text"
+            id="kecamatanCuti"
+            placeholder="Nama Kecamatan">
+
+    </div>
+
+</div>
+
+<div class="form-group">
+
+    <div class="alamat-prefix">
+
+        <span>Kab/Kota</span>
+
+        <input
+            type="text"
+            id="kotaCuti"
+            placeholder="Kabupaten/Kota">
+
+    </div>
+
+</div>
+
+   <div class="form-group bukti-persetujuan">
+
+    <label class="form-section-title">
+        📎 Bukti Persetujuan Atasan
+    </label>
+
+    <label
+        for="persetujuanAtasan"
+        class="file-upload-area">
+
+        <div class="file-upload-icon">
+            ☁️
+        </div>
+
+        <div class="file-upload-content">
+
+            <strong>
+                Klik untuk memilih file
+            </strong>
+
+            <span>
+                Format JPG, JPEG, PNG • Maksimal 2MB
+            </span>
+
+            <span
+                id="namaFilePersetujuan"
+                class="file-name">
+                Belum ada file dipilih
+            </span>
+
+        </div>
+
+    </label>
+
+    <input
+        type="file"
+        id="persetujuanAtasan"
+        accept=".jpg,.jpeg,.png,image/*"
+        hidden>
+
+</div>
 
     <div class="form-action">
 
