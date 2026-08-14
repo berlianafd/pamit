@@ -611,20 +611,62 @@ function terbilang(n) {
     );
 
 }
-
 async function getAtasan(pegawai) {
 
     let atasan1 = null;
     let atasan2 = null;
 
-    // ======== SEKRETARIAT ========
+    // =====================================================
+    // KABID
+    // =====================================================
+
     if (
+    pegawai.jabatan &&
+    (
+        pegawai.jabatan.toLowerCase().includes("kepala bidang") ||
+        pegawai.jabatan.toLowerCase().includes("sekretaris")
+    )
+) {
+
+    // ================================
+    // ATASAN 1 = KEPALA DINAS
+    // ================================
+
+    const { data: kadis, error: err1 } = await supabase
+        .from("pegawai")
+        .select("nama,nip,jabatan")
+        .ilike("jabatan", "%Kepala Dinas%")
+        .single();
+
+    if (err1) {
+        console.error("ERROR KADIS:", err1);
+    }
+
+    atasan1 = kadis;
+
+
+    // ================================
+    // ATASAN 2 = BUDIAR (FIXED)
+    // ================================
+
+    atasan2 = {
+        nama: "Dr. Ir. BUDIAR, M.Si",
+        nip: "197011191996031004",
+        jabatan: "Sekretaris Daerah"
+    };
+
+}
+
+    // =====================================================
+    // SEKRETARIAT
+    // =====================================================
+
+    else if (
         pegawai.unit_kerja == "Sub Bagian Umum dan Kepegawaian" ||
         pegawai.unit_kerja == "Sub Bagian Keuangan" ||
         pegawai.unit_kerja == "Sekretariat"
     ) {
-        console.log("UNIT KERJA PEGAWAI:", pegawai.unit_kerja);
-        console.log("JABATAN PEGAWAI:", pegawai.jabatan);
+
         const { data: kasubbag, error: err1 } = await supabase
             .from("pegawai")
             .select("nama,nip,jabatan")
@@ -632,10 +674,10 @@ async function getAtasan(pegawai) {
             .ilike("jabatan", "%Kepala Sub Bagian%")
             .single();
 
-        if (err1) console.error(err1);
+        if (err1) console.error("ERROR KASUBBAG:", err1);
 
         atasan1 = kasubbag;
-        console.log("ATASAN 1:", atasan1);
+
 
         const { data: sekretaris, error: err2 } = await supabase
             .from("pegawai")
@@ -643,13 +685,17 @@ async function getAtasan(pegawai) {
             .ilike("jabatan", "%Sekretaris%")
             .single();
 
-        if (err2) console.error(err2);
+        if (err2) console.error("ERROR SEKRETARIS:", err2);
 
         atasan2 = sekretaris;
 
     }
 
-    // ======== BIDANG ========
+
+    // =====================================================
+    // STAF BIDANG
+    // =====================================================
+
     else {
 
         const { data: kabid, error: err1 } = await supabase
@@ -659,10 +705,10 @@ async function getAtasan(pegawai) {
             .ilike("jabatan", "%Kepala Bidang%")
             .single();
 
-        if (err1) console.error(err1);
+        if (err1) console.error("ERROR KABID:", err1);
 
         atasan1 = kabid;
-        console.log("ATASAN 1:", atasan1);
+
 
         const { data: kadis, error: err2 } = await supabase
             .from("pegawai")
@@ -670,11 +716,12 @@ async function getAtasan(pegawai) {
             .ilike("jabatan", "%Kepala Dinas%")
             .single();
 
-        if (err2) console.error(err2);
+        if (err2) console.error("ERROR KADIS:", err2);
 
         atasan2 = kadis;
 
     }
+
 
     return {
 
@@ -684,14 +731,18 @@ async function getAtasan(pegawai) {
         nip_atasan1:
             atasan1?.nip ?? "",
 
+        jabatan_atasan1:
+            atasan1?.jabatan ?? "",
+
+
         atasan2:
             atasan2?.nama ?? "",
 
         nip_atasan2:
             atasan2?.nip ?? "",
 
-        jabatan_atasan:
-            atasan1.jabatan ?? "",
+        jabatan_atasan2:
+            atasan2?.jabatan ?? ""
 
     };
 
