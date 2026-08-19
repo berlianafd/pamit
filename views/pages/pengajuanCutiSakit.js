@@ -96,49 +96,34 @@ export function pengajuanCutiSakitPage() {
 </div>
 
 
-<div class="form-group">
+<div class="wilayah-grid">
 
-    <div class="alamat-prefix">
-
-        <span>Desa/Kel.</span>
-
-        <input
-            type="text"
-            id="desaCutiSakit"
-            placeholder="Nama Desa/Kelurahan">
-
+    <div class="form-group">
+        <label>Provinsi</label>
+        <select id="provinsiCuti" class="wilayah-select">
+            <option value="">Pilih Provinsi</option>
+        </select>
     </div>
 
-</div>
-
-
-<div class="form-group">
-
-    <div class="alamat-prefix">
-
-        <span>Kecamatan</span>
-
-        <input
-            type="text"
-            id="kecamatanCutiSakit"
-            placeholder="Nama Kecamatan">
-
+    <div class="form-group">
+        <label>Kabupaten/Kota</label>
+        <select id="kotaCuti" class="wilayah-select" disabled>
+            <option value="">Pilih Kabupaten/Kota</option>
+        </select>
     </div>
 
-</div>
+    <div class="form-group">
+        <label>Kecamatan</label>
+        <select id="kecamatanCuti" class="wilayah-select" disabled>
+            <option value="">Pilih Kecamatan</option>
+        </select>
+    </div>
 
-
-<div class="form-group">
-
-    <div class="alamat-prefix">
-
-        <span>Kab/Kota</span>
-
-        <input
-            type="text"
-            id="kotaCutiSakit"
-            placeholder="Kabupaten/Kota">
-
+    <div class="form-group">
+        <label>Desa/Kelurahan</label>
+        <select id="desaCuti" class="wilayah-select" disabled>
+            <option value="">Pilih Desa/Kelurahan</option>
+        </select>
     </div>
 
 </div>

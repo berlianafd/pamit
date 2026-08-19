@@ -248,7 +248,7 @@ export async function generateFormCuti(pengajuanId) {
 
             nip_atasan2: atasan.nip_atasan2,
 
-            paraf_jabatan: atasan.jabatan_atasan,
+            paraf_jabatan: atasan.jabatan_atasan1,
 
             jenis_pegawai:
                 pegawai.jenis_pegawai === "PNS"
@@ -258,12 +258,7 @@ export async function generateFormCuti(pengajuanId) {
 
         };
 
-        // console.log(
-
-        //     templateData
-
-        // );
-
+       
         // ==============================
         // LOAD TEMPLATE WORD
         // ==============================
@@ -276,61 +271,7 @@ export async function generateFormCuti(pengajuanId) {
 
         );
 
-        // const response = await fetch(TEMPLATE_CUTI);
-
-        // if (!response.ok) {
-
-        //     throw new Error("Template Word tidak ditemukan.");
-
-        // }
-
-        // const content = await response.arrayBuffer();
-
-        // const zip = new PizZip(content);
-        // const doc = new window.docxtemplater(zip);
-        // // const doc = new window.docxtemplater(zip, {
-
-        // //     paragraphLoop: true,
-
-        // //     linebreaks: true
-
-        // // });
-
-        // doc.setData(templateData);
-
-        // try {
-
-        //     doc.render();
-
-        // } catch (e) {
-
-        //     console.error(e);
-
-        //     throw new Error("Template gagal dirender.");
-
-        // }
-
-        // const blob = doc
-
-        //     .getZip()
-
-        //     .generate({
-
-        //         type: "blob",
-
-        //         mimeType:
-        //             "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-
-        //     });
-
-        // window.saveAs(
-
-        //     blob,
-
-        //     `FORM ${namaJenisCuti(data.jenis_pengajuan)} - ${pegawai.nama}.docx`
-
-        // );
-
+        
         // ==============================
         // UPDATE CATATAN ADMIN
         // ==============================
