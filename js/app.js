@@ -5159,23 +5159,16 @@ async function loadReviewPengajuan() {
 
   data.sort((a, b) => {
 
-    const statusA =
-      urutanStatus[a.status] ?? 99;
+  const statusA = urutanStatus[a.status] ?? 99;
+  const statusB = urutanStatus[b.status] ?? 99;
 
-    const statusB =
-      urutanStatus[b.status] ?? 99;
+  if (statusA !== statusB) {
+    return statusA - statusB;
+  }
 
-    if (statusA !== statusB) {
-      return statusA - statusB;
-    }
-
-    const tglA = ambilTanggalPengajuan(a);
-    const tglB = ambilTanggalPengajuan(b);
-
-    return new Date(tglA) - new Date(tglB);
-
-  });
-
+  // Status sama → gunakan urutan created_at dari Supabase
+  return 0;
+});
   tbody.innerHTML = "";
 
   data.forEach(item => {
