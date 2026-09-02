@@ -57,6 +57,11 @@ import {
 }
   from "../views/pages/pengajuanCutiSakit.js";
 
+  import {
+  pengajuanCutiAlasanPentingPage
+}
+  from "../views/pages/pengajuanCutiAlasanPenting.js";
+
 import {
   pengajuanKendalaPresensiPage
 }
@@ -136,7 +141,7 @@ async function start() {
       data: pegawai
     } = await supabase
       .from("pegawai")
-      .select("nama")
+      .select("nama, jenis_pegawai")
       .eq(
         "email",
         userData.user.email
@@ -159,7 +164,8 @@ async function start() {
 
     renderDashboard(
       role,
-      pegawai?.nama
+      pegawai?.nama,
+      pegawai?.jenis_pegawai
     );
 
   }
@@ -174,14 +180,14 @@ async function start() {
 
 }
 
-function renderDashboard(role, nama) {
+function renderDashboard(role, nama, jenisPegawai) {
 
   switch (role) {
 
     case "pegawai":
 
       app.innerHTML =
-        renderPegawai(nama);
+        renderPegawai(nama, jenisPegawai);
       registerPages();
 
       registerMenus();
@@ -197,7 +203,7 @@ function renderDashboard(role, nama) {
     case "admin_cuti":
 
       app.innerHTML =
-        renderAdminCuti(nama);
+        renderAdminCuti(nama, jenisPegawai);
       registerPages();
 
       registerMenus();
@@ -215,7 +221,7 @@ function renderDashboard(role, nama) {
     case "admin_presensi":
 
       app.innerHTML =
-        renderAdminPresensi(nama);
+        renderAdminPresensi(nama  , jenisPegawai);
       registerPages();
 
       registerMenus();
@@ -233,7 +239,7 @@ function renderDashboard(role, nama) {
     case "superadmin":
 
       app.innerHTML =
-        renderSuperadmin(nama);
+        renderSuperadmin(nama, jenisPegawai);
 
       registerPages();
 
@@ -440,6 +446,11 @@ function registerPages() {
   registerRoute(
     "pengajuanCutiSakit",
     pengajuanCutiSakitPage
+  );
+
+  registerRoute(
+    "pengajuanCutiAlasanPenting",
+    pengajuanCutiAlasanPentingPage
   );
 
   registerRoute(
@@ -1481,6 +1492,42 @@ window.initPengajuanCutiSakit = async function () {
   initWilayahCuti();
 
   await loadRiwayatCutiSakit();
+
+}
+
+window.initPengajuanCutiAlasanPenting = async function () {
+
+  document
+    .getElementById("suratPersetujuanAtasan")
+    ?.addEventListener("change", function () {
+
+      const namaFile =
+        document.getElementById("namaFileSuratPersetujuanAtasan");
+
+      if (!this.files.length) {
+
+        namaFile.textContent =
+          "Belum ada file dipilih";
+
+        return;
+
+      }
+
+      namaFile.textContent =
+        this.files[0].name;
+
+    });
+
+  document
+    .getElementById(
+      "btnSimpanCutiAlasanPenting"
+    )
+    .onclick =
+    simpanPengajuanCutiAlasanPenting;
+
+  initWilayahCuti();
+
+  await loadRiwayatCutiAlasanPenting();
 
 }
 
@@ -3037,6 +3084,404 @@ async function simpanPengajuanCutiSakit() {
 
 }
 
+async function simpanPengajuanCutiAlasanPenting() {
+
+  const tanggalMulai =
+    document
+      .getElementById("tanggalMulai")
+      .value;
+
+  const tanggalSelesai =
+    document
+      .getElementById("tanggalSelesai")
+      .value;
+
+      const alasan =
+    document.getElementById("alasanCutiAlasanPenting").value.trim();
+
+  const alamat =
+    document.getElementById("alamatCutiAlasanPenting").value.trim();
+
+  const rt =
+    document.getElementById("rtCutiAlasanPenting").value.trim();
+
+  const rw =
+    document.getElementById("rwCutiAlasanPenting").value.trim();
+
+  const desa =
+    document.getElementById("desaCuti").value.trim();
+
+  const kecamatan =
+    document.getElementById("kecamatanCuti").value.trim();
+
+  const kota =
+    document.getElementById("kotaCuti").value.trim();
+
+  const namaKota =
+    kotaCuti?.options[
+      kotaCuti.selectedIndex
+    ]?.text || "";
+
+  const namaKecamatan =
+    kecamatanCuti?.options[
+      kecamatanCuti.selectedIndex
+    ]?.text || "";
+
+  const namaDesa =
+    desaCuti?.options[
+      desaCuti.selectedIndex
+    ]?.text || "";
+
+  const alamatLengkap = [
+    alamat,
+    rt || rw
+      ? `RT ${rt || "-"} RW ${rw || "-"}`
+      : "",
+    desa
+      ? `${namaDesa}`
+      : "",
+    kecamatan
+      ? `Kecamatan ${namaKecamatan}`
+      : "",
+    kota
+      ? `${namaKota}`
+      : ""
+  ].filter(Boolean).join(", ");
+
+  const file =
+    document
+      .getElementById("suratPersetujuanAtasan")
+      .files[0];
+
+
+  if (!tanggalMulai) {
+
+    alert("Tanggal mulai wajib diisi.");
+
+    return;
+
+  }
+
+  if (!tanggalSelesai) {
+
+    alert("Tanggal selesai wajib diisi.");
+
+    return;
+
+  }
+
+  if (!alasan) {
+
+    alert("Alasan cuti wajib diisi.");
+
+    return;
+
+  }
+
+  if (new Date(tanggalSelesai) < new Date(tanggalMulai)) {
+
+    alert("Tanggal selesai tidak boleh lebih kecil dari tanggal mulai.");
+
+    return;
+
+  }
+
+  if (!file) {
+
+    alert("Bukti persetujuan atasan wajib diupload.");
+
+    return;
+
+  }
+
+  (!alamat || !rt || !rw || !desa || !kecamatan || !kota) && alert("Alamat lengkap wajib diisi.");
+
+  const ext =
+    file.name
+      .split(".")
+      .pop()
+      .toLowerCase();
+
+  const allowed =
+    [
+      "pdf",
+      "jpg",
+      "jpeg",
+      "png"
+    ];
+
+  if (!allowed.includes(ext)) {
+
+    alert(
+      "File harus PDF/JPG/JPEG/PNG."
+    );
+
+    return;
+
+  }
+
+  if (
+
+    ext === "pdf"
+
+    &&
+
+    file.size >
+    2 * 1024 * 1024
+
+  ) {
+
+    alert(
+      "PDF maksimal 2 MB."
+    );
+
+    return;
+
+  }
+
+  let fileUrl;
+
+  try {
+
+    fileUrl =
+      await uploadDokumen(
+
+        "persetujuan_atasan",
+
+        "CAP",
+
+        pegawaiLogin.id,
+
+        file
+
+      );
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert(err.message);
+
+    return;
+
+  }
+
+  const {
+    data: nomorPengajuan,
+    error: nomorError
+  } = await supabase.rpc(
+    "generate_nomor_pengajuan",
+    {
+      p_jenis: "CAP"
+    }
+  );
+
+  if (nomorError) {
+
+    console.error(nomorError);
+
+    alert("Gagal membuat nomor pengajuan.");
+
+    return;
+
+  }
+
+  const {
+    data: pengajuan,
+    error: pengajuanError
+  } = await supabase
+    .from("pengajuan")
+    .insert({
+
+      nomor_pengajuan: nomorPengajuan,
+
+      pegawai_id: pegawaiLogin.id,
+
+      jenis_pengajuan: "CUTI_ALASAN_PENTING",
+
+      status: "MENUNGGU",
+
+      created_by: pegawaiLogin.id,
+
+      created_at: new Date().toISOString()
+
+    })
+    .select()
+    .single();
+
+
+
+  if (pengajuanError) {
+
+    console.error(pengajuanError);
+
+    alert("Gagal menyimpan pengajuan.");
+
+    return;
+
+  }
+
+  const { error: anggotaError } = await supabase
+    .from("pengajuan_anggota")
+    .insert({
+
+      pengajuan_id: pengajuan.id,
+
+      pegawai_id: pegawaiLogin.id,
+
+      is_pengaju: true
+
+    });
+
+  if (anggotaError) {
+
+    console.error(anggotaError);
+
+    alert("Gagal menyimpan pengaju.");
+
+    return;
+
+  }
+
+  const mulai =
+    new Date(tanggalMulai);
+
+  const selesai =
+    new Date(tanggalSelesai);
+
+  const jumlahHari =
+    Math.floor(
+      (selesai - mulai) / 86400000
+    ) + 1;
+
+
+  const {
+    error: detailError
+  } = await supabase
+    .from("cuti_alasan_penting_detail")
+    .insert({
+
+      pengajuan_id: pengajuan.id,
+
+      tanggal_mulai: tanggalMulai,
+
+      tanggal_selesai: tanggalSelesai,
+
+      jumlah_hari: jumlahHari,
+
+      alamat: alamatLengkap,
+
+      alasan: alasan
+
+    });
+
+  if (detailError) {
+
+    console.error(detailError);
+
+    alert("Gagal menyimpan detail.");
+
+    return;
+
+  }
+
+  const {
+    error: dokumenError
+  } = await supabase
+    .from("dokumen")
+    .insert({
+
+      pengajuan_id: pengajuan.id,
+
+      jenis_dokumen: "PERSETUJUAN_ATASAN",
+
+      file_url: fileUrl,
+
+      status_verifikasi: "MENUNGGU",
+
+      uploaded_at: new Date().toISOString()
+
+    });
+
+  if (dokumenError) {
+
+    console.error(dokumenError);
+
+    alert("Gagal menyimpan dokumen.");
+
+    return;
+
+  }
+
+  await updateTKBerdasarkanRentangTanggal(
+
+    [pegawaiLogin.id],
+
+    tanggalMulai,
+
+    tanggalSelesai,
+
+    KETERANGAN_TK.PENGAJUAN_CUTI
+
+  );
+
+  document.getElementById("tanggalMulai").value = "";
+  document.getElementById("tanggalSelesai").value = "";
+  document.getElementById("suratPersetujuanAtasan").value = "";
+  document.getElementById("alasanCutiAlasanPenting").value = "";
+  document.getElementById("alamatCutiAlasanPenting").value = "";
+  document
+    .getElementById(
+      "rtCutiAlasanPenting"
+    ).value = "";
+
+  document
+    .getElementById(
+      "rwCutiAlasanPenting"
+    ).value = "";
+
+  document
+    .getElementById(
+      "desaCuti"
+    ).value = "";
+
+  document
+    .getElementById(
+      "desaCuti"
+    ).disabled = true;
+
+  document
+    .getElementById(
+      "kecamatanCuti"
+    ).value = "";
+
+  document
+    .getElementById(
+      "kecamatanCuti"
+    ).disabled = true;
+
+  document
+    .getElementById(
+      "kotaCuti"
+    ).value = "";
+
+  document
+    .getElementById(
+      "kotaCuti"
+    ).disabled = true;
+
+  document
+    .getElementById(
+      "provinsiCuti"
+    ).value = "";
+
+
+  await loadRiwayatCutiAlasanPenting();
+
+  alert("Pengajuan berhasil disimpan.");
+
+}
+
 async function simpanPengajuanCutiTahunan() {
 
   const alasan =
@@ -3595,6 +4040,236 @@ Lihat Form Cuti
     if (hapus) {
 
       await hapusPengajuanCutiSakit(
+
+        Number(
+          hapus.dataset.id
+        )
+
+      );
+
+      return;
+
+    }
+
+    const btnLihatForm =
+      e.target.closest(".btn-lihat-form-cuti");
+
+    if (btnLihatForm) {
+
+      await lihatFormCuti(
+        Number(btnLihatForm.dataset.id)
+      );
+
+      return;
+
+    }
+
+  };
+}
+
+async function loadRiwayatCutiAlasanPenting() {
+  const tbody =
+    document.getElementById(
+      "riwayatCutiAlasanPentingBody"
+    );
+
+  if (!tbody) return;
+
+  const {
+    data: userData
+  } = await supabase.auth.getUser();
+
+  const {
+    data: pegawai
+  } = await supabase
+    .from("pegawai")
+    .select("id")
+    .eq(
+      "email",
+      userData.user.email
+    )
+    .single();
+
+  pegawaiLogin = pegawai;
+
+  const {
+    data,
+    error
+  } = await supabase
+    .from("pengajuan")
+    .select(`
+
+    id,
+    nomor_pengajuan,
+    status,
+    deleted_at,
+    catatan_admin,
+
+    cuti_alasan_penting_detail(
+
+      tanggal_mulai,
+      tanggal_selesai,
+      jumlah_hari
+    )
+
+  `)
+    .eq(
+      "pegawai_id",
+      pegawai.id
+    )
+    .eq(
+      "jenis_pengajuan",
+      "CUTI_ALASAN_PENTING"
+    )
+    .is(
+      "deleted_at",
+      null
+    )
+    .order(
+      "created_at",
+      {
+        ascending: false
+      }
+    );
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+
+  }
+
+  tbody.innerHTML = "";
+
+  data.forEach(p => {
+
+    const detail =
+      p.cuti_alasan_penting_detail?.[0];
+
+    tbody.innerHTML += `
+
+<tr align="center">
+
+<td>
+
+${p.nomor_pengajuan}
+
+</td>
+
+<td>
+
+${detail?.tanggal_mulai ?? "-"}
+
+${detail?.tanggal_selesai ?
+
+        ` s/d ${detail.tanggal_selesai}`
+
+        : ""}
+
+</td>
+
+<td>
+
+${badgeStatus(
+          p.status
+        )}
+
+</td>
+
+<td>
+
+${p?.catatan_admin ?? "-"} </td>
+
+<td>
+
+<button
+class="btn-lihat-surat"
+data-id="${p.id}"
+>
+
+Lihat Bukti Persetujuan Atasan
+
+</button>
+
+${p.status === "MENUNGGU"
+
+        ?
+
+        `
+
+<button
+class="btn-danger btn-hapus-cs"
+data-id="${p.id}"
+>
+
+Hapus
+
+</button>
+
+`
+
+        :
+
+        ""
+
+      }
+
+${p.status === "SELESAI"
+
+        ?
+
+        `
+
+<button
+class="btn-success btn-lihat-form-cuti"
+data-id="${p.id}">
+
+Lihat Form Cuti
+
+</button>
+
+`
+
+        :
+
+        ""
+
+      }
+
+</td>
+
+</tr>
+
+`;
+
+  });
+
+  tbody.onclick = async (e) => {
+
+    const lihat =
+      e.target.closest(".btn-lihat-surat");
+
+    if (lihat) {
+
+      await lihatSuratCutiAlasanPenting(
+
+        Number(lihat.dataset.id)
+
+      );
+
+      return;
+
+    }
+
+    const hapus =
+      e.target.closest(
+        ".btn-hapus-cs"
+      );
+
+    if (hapus) {
+
+      await hapusPengajuanCutiAlasanPenting(
 
         Number(
           hapus.dataset.id
@@ -4646,6 +5321,95 @@ async function hapusPengajuanCutiSakit(id) {
 
 }
 
+async function hapusPengajuanCutiAlasanPenting(id) {
+
+  if (!confirm("Yakin ingin menghapus pengajuan ini?")) {
+
+    return;
+
+  }
+
+  const {
+    data,
+    error
+  } = await supabase
+    .from("pengajuan")
+    .select("status")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+
+  }
+
+  if (data.status !== "MENUNGGU") {
+
+    alert("Pengajuan tidak dapat dihapus.");
+
+    return;
+
+  }
+
+  const {
+    data: updateData,
+    error: updateError
+  } = await supabase
+    .from("pengajuan")
+    .update({
+
+      deleted_at: new Date().toISOString(),
+      deleted_by: pegawaiLogin.id,
+      delete_reason: "Dihapus oleh pengaju"
+
+    })
+    .eq("id", id)
+    .select();
+
+  if (updateError) {
+
+    console.error(updateError);
+
+    alert("Gagal menghapus.");
+
+    return;
+
+  }
+
+  const {
+    data: detail
+  } = await supabase
+
+    .from("cuti_alasan_penting_detail")
+
+    .select(`
+    tanggal_mulai,
+    tanggal_selesai
+  `)
+
+    .eq("pengajuan_id", id)
+
+    .single();
+
+  await refreshKeteranganTKRentang(
+
+    pegawaiLogin.id,
+
+    detail.tanggal_mulai,
+
+    detail.tanggal_selesai
+
+  );
+
+  alert("Pengajuan berhasil dihapus.");
+
+  await loadRiwayatCutiAlasanPenting();
+
+}
+
 async function hapusPengajuanCutiTahunan(id) {
 
   if (!confirm("Yakin ingin menghapus pengajuan ini?")) {
@@ -4757,6 +5521,75 @@ async function lihatSuratCutiSakit(id) {
     await supabase
       .storage
       .from("surat_sakit")
+      .createSignedUrl(
+
+        data.file_url,
+
+        60
+
+      );
+
+  const ext =
+    data.file_url
+      .split(".")
+      .pop()
+      .toLowerCase();
+
+  if (ext === "pdf") {
+
+    window.open(
+
+      urlData.signedUrl,
+
+      "_blank"
+
+    );
+
+    return;
+
+  }
+
+  window.open(
+
+    urlData.signedUrl,
+
+    "_blank"
+
+  );
+
+}
+
+async function lihatSuratCutiAlasanPenting(id) {
+  const {
+    data,
+    error
+  } =
+    await supabase
+      .from("dokumen")
+      .select("file_url")
+      .eq(
+        "pengajuan_id",
+        id
+      )
+      .eq("jenis_dokumen", "PERSETUJUAN_ATASAN")
+      .single();
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+
+  }
+
+  const {
+    data: urlData,
+    error: urlError
+  }
+    =
+    await supabase
+      .storage
+      .from("persetujuan_atasan")
       .createSignedUrl(
 
         data.file_url,
@@ -5117,13 +5950,19 @@ async function loadReviewPengajuan() {
       ),
 
       cuti_sakit_detail(
-    tanggal_mulai,
-    tanggal_selesai,
-    jumlah_hari
-)
+      tanggal_mulai,
+      tanggal_selesai,
+      jumlah_hari
+      ),
+
+      cuti_alasan_penting_detail(
+      tanggal_mulai,
+      tanggal_selesai,
+      jumlah_hari
+      )
     `)
     .eq("pengajuan_anggota.is_pengaju", true)
-    .in("jenis_pengajuan", ["CUTI_TAHUNAN", "CUTI_SAKIT"])
+    .in("jenis_pengajuan", ["CUTI_TAHUNAN", "CUTI_SAKIT", "CUTI_ALASAN_PENTING"])
     .is("deleted_at", null)
     .order("created_at", {
       ascending: false
@@ -5153,8 +5992,9 @@ async function loadReviewPengajuan() {
   const urutanStatus = {
     "MENUNGGU": 1,
     "DIPROSES": 2,
-    "DITOLAK": 3,
-    "SELESAI": 4
+    "DISETUJUI": 3,
+    "DITOLAK": 4,
+    "SELESAI": 5
   };
 
   data.sort((a, b) => {
@@ -5181,7 +6021,11 @@ async function loadReviewPengajuan() {
 
         ? "Cuti Tahunan"
 
-        : "Cuti Sakit";
+        : item.jenis_pengajuan === "CUTI_SAKIT"
+
+        ? "Cuti Sakit"
+
+        : "Cuti Alasan Penting";
 
     let tanggal = "-";
 
@@ -5197,7 +6041,7 @@ async function loadReviewPengajuan() {
 
       }
 
-    } else {
+    } else if (item.jenis_pengajuan == "CUTI_SAKIT") {
 
       const cs =
         item.cuti_sakit_detail?.[0];
@@ -5213,6 +6057,20 @@ async function loadReviewPengajuan() {
 
       }
 
+    } else if (item.jenis_pengajuan == "CUTI_ALASAN_PENTING") {
+         const cap =
+            item.cuti_alasan_penting_detail?.[0];
+
+          if (cap) {
+
+            tanggal =
+              `${cap.tanggal_mulai}
+            <br>
+            s.d.
+            <br>
+            ${cap.tanggal_selesai}`;
+
+          }
     }
 
     tbody.innerHTML += `
@@ -5363,6 +6221,8 @@ async function isiModalDetail(id) {
         cuti_tahunan_tanggal(*),
 
         cuti_sakit_detail(*),
+
+        cuti_alasan_penting_detail(*),
 
         dokumen(*)
 
@@ -5517,7 +6377,7 @@ async function isiModalDetail(id) {
 
         `;
 
-  } else {
+  } else if (data.jenis_pengajuan == "CUTI_SAKIT") {
 
     const detail =
       data.cuti_sakit_detail[0];
@@ -5560,6 +6420,47 @@ async function isiModalDetail(id) {
 
         `;
 
+  } else if (data.jenis_pengajuan == "CUTI_ALASAN_PENTING") {
+const detail =
+      data.cuti_alasan_penting_detail[0];
+
+    card.innerHTML = `
+
+        <div class="card-title">
+
+            Data Cuti Alasan Penting
+
+        </div>
+
+        <table class="table-detail">
+
+            <tr>
+
+                <td>Tanggal Mulai</td>
+
+                <td>${detail.tanggal_mulai}</td>
+
+            </tr>
+
+            <tr>
+
+                <td>Tanggal Selesai</td>
+
+                <td>${detail.tanggal_selesai}</td>
+
+            </tr>
+
+            <tr>
+
+                <td>Jumlah Hari</td>
+
+                <td>${detail.jumlah_hari} Hari</td>
+
+            </tr>
+
+        </table>
+
+        `;
   }
 
 
@@ -6716,13 +7617,19 @@ async function loadReviewPresensiCuti() {
       ),
 
       cuti_sakit_detail(
-    tanggal_mulai,
-    tanggal_selesai,
-    jumlah_hari
-)
+          tanggal_mulai,
+          tanggal_selesai,
+          jumlah_hari
+      ),
+
+      cuti_alasan_penting_detail(
+          tanggal_mulai,
+          tanggal_selesai,
+          jumlah_hari
+      )
     `)
     .in("status", ["DISETUJUI", "SELESAI"])
-    .in("jenis_pengajuan", ["CUTI_TAHUNAN", "CUTI_SAKIT"])
+    .in("jenis_pengajuan", ["CUTI_TAHUNAN", "CUTI_SAKIT", "CUTI_ALASAN_PENTING"])
     .is("deleted_at", null);
 
   data.forEach(p => {
@@ -6734,10 +7641,15 @@ async function loadReviewPresensiCuti() {
           ?.map(x => x.tanggal)
           ?.sort()[0];
 
-    } else {
+    } else if (p.jenis_pengajuan === "CUTI_SAKIT") {
 
       p.tanggal_awal =
         p.cuti_sakit_detail?.tanggal_mulai;
+
+    } else if (p.jenis_pengajuan === "CUTI_ALASAN_PENTING") {
+
+      p.tanggal_awal =
+        p.cuti_alasan_penting_detail?.tanggal_mulai;
 
     }
 
@@ -6746,8 +7658,9 @@ async function loadReviewPresensiCuti() {
   const urutanStatus = {
     "MENUNGGU": 1,
     "DIPROSES": 2,
-    "DITOLAK": 3,
-    "SELESAI": 4
+    "DISETUJUI": 3,
+    "DITOLAK": 4,
+    "SELESAI": 5
   };
 
   data.sort((a, b) => {
@@ -6801,7 +7714,11 @@ async function loadReviewPresensiCuti() {
 
         ? "Cuti Tahunan"
 
-        : "Cuti Sakit";
+        : item.jenis_pengajuan === "CUTI_SAKIT"
+
+        ? "Cuti Sakit"
+
+        : "Cuti Alasan Penting";
 
     let tanggal = "-";
 
@@ -6817,7 +7734,7 @@ async function loadReviewPresensiCuti() {
 
       }
 
-    } else {
+    } else if (item.jenis_pengajuan === "CUTI_SAKIT") {
 
       const cs =
         item.cuti_sakit_detail?.[0];
@@ -6830,6 +7747,22 @@ async function loadReviewPresensiCuti() {
         s.d.
         <br>
         ${cs.tanggal_selesai}`;
+
+      }
+
+    } else if (item.jenis_pengajuan === "CUTI_ALASAN_PENTING") {
+
+      const cap =
+        item.cuti_alasan_penting_detail?.[0];
+
+      if (cap) {
+
+        tanggal =
+          `${cap.tanggal_mulai}
+        <br>
+        s.d.
+        <br>
+        ${cap.tanggal_selesai}`;
 
       }
 
@@ -7058,8 +7991,9 @@ async function loadReviewPresensiDL() {
   const urutanStatus = {
     "MENUNGGU": 1,
     "DIPROSES": 2,
-    "DITOLAK": 3,
-    "SELESAI": 4
+    "DISETUJUI": 3,
+    "DITOLAK": 4,
+    "SELESAI": 5
   };
 
   data.sort((a, b) => {
@@ -7920,6 +8854,13 @@ function ambilTanggalPengajuan(item) {
     return item.cuti_sakit_detail?.[0]?.tanggal_mulai ?? "";
 
   }
+
+  if (item.jenis_pengajuan === "CUTI_ALASAN_PENTING") {
+
+    return item.cuti_alasan_penting_detail?.[0]?.tanggal_mulai ?? "";
+
+  }
+
 
   if (item.jenis_pengajuan === "CUTI_TAHUNAN") {
 

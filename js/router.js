@@ -67,6 +67,12 @@ export function navigate(name) {
 
     }
 
+    if (name === "pengajuanCutiAlasanPenting") {
+
+      window.initPengajuanCutiAlasanPenting();
+
+    }
+
     if (name === "reviewPengajuan") {
 
       window.initReviewPengajuan();

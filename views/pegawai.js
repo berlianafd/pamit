@@ -1,7 +1,23 @@
 import { renderLayout }
 from "./layout.js";
 
-export function renderPegawai(nama){
+export function renderPegawai(nama, jenisPegawai){
+
+  const menuPns = jenisPegawai === "PNS"
+    ? `
+      <button
+        class="menu-btn"
+        data-page="pengajuanCutiAlasanPenting">
+
+        <span class="material-symbols-rounded">trending_up</span>
+
+        <span class="menu-text">
+          Pengajuan Cuti Alasan Penting
+        </span>
+
+      </button>
+    `
+    : "";
 
   return renderLayout(
 
@@ -10,63 +26,70 @@ export function renderPegawai(nama){
     `
 
     <button
-class="menu-btn"
-data-page="dashboard">
+      class="menu-btn"
+      data-page="dashboard">
 
-<span class="material-symbols-rounded">dashboard</span>
+      <span class="material-symbols-rounded">dashboard</span>
 
-<span class="menu-text">
-Dashboard
-</span>
+      <span class="menu-text">
+        Dashboard
+      </span>
 
-</button>
+    </button>
 
-<button
-class="menu-btn"
-data-page="pengajuanCutiTahunan">
 
-<span class="material-symbols-rounded">calendar_today</span>
+    <button
+      class="menu-btn"
+      data-page="pengajuanCutiTahunan">
 
-<span class="menu-text">
-Pengajuan Cuti Tahunan
-</span>
+      <span class="material-symbols-rounded">calendar_today</span>
 
-</button>
+      <span class="menu-text">
+        Pengajuan Cuti Tahunan
+      </span>
 
-<button
-class="menu-btn"
-data-page="pengajuanCutiSakit">
+    </button>
 
-<span class="material-symbols-rounded">medical_services</span>
 
-<span class="menu-text">
-Pengajuan Cuti Sakit
-</span>
+    <button
+      class="menu-btn"
+      data-page="pengajuanCutiSakit">
 
-</button>
+      <span class="material-symbols-rounded">medical_services</span>
 
-<button
-class="menu-btn"
-data-page="pengajuanDl">
+      <span class="menu-text">
+        Pengajuan Cuti Sakit
+      </span>
 
-<span class="material-symbols-rounded">directions_car</span>
+    </button>
 
-<span class="menu-text">
-Pengajuan Dinas Luar
-</span>
 
-</button>
+    <button
+      class="menu-btn"
+      data-page="pengajuanDl">
 
-<button
-id="logoutBtn">
+      <span class="material-symbols-rounded">directions_car</span>
 
-<span class="material-symbols-rounded">logout</span>
+      <span class="menu-text">
+        Pengajuan Dinas Luar
+      </span>
 
-<span class="menu-text">
-Logout
-</span>
+    </button>
 
-</button>
+
+    ${menuPns}
+
+
+    <button
+      id="logoutBtn">
+
+      <span class="material-symbols-rounded">logout</span>
+
+      <span class="menu-text">
+        Logout
+      </span>
+
+    </button>
 
     `
   );

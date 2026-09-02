@@ -24,7 +24,8 @@ export async function generateFormCuti(pengajuanId) {
                 ),
                 cuti_tahunan_detail(*),
                 cuti_tahunan_tanggal(*),
-                cuti_sakit_detail(*)
+                cuti_sakit_detail(*),
+                cuti_alasan_penting_detail(*)
             `)
 
             .eq("id", pengajuanId)
@@ -99,7 +100,7 @@ export async function generateFormCuti(pengajuanId) {
 
         }
 
-        else {
+        else if (data.jenis_pengajuan == "CUTI_SAKIT") {
 
             const detail =
 
@@ -123,6 +124,28 @@ export async function generateFormCuti(pengajuanId) {
 
                 detail.jumlah_hari;
 
+        } else if (data.jenis_pengajuan == "CUTI_ALASAN_PENTING") {
+            const detail =
+
+                data.cuti_alasan_penting_detail[0];
+
+            alasan = detail.alasan ?? "";
+
+            alamat =
+
+                detail.alamat ?? "";
+
+            tglMulai =
+
+                detail.tanggal_mulai;
+
+            tglSelesai =
+
+                detail.tanggal_selesai;
+
+            lamaHari =
+
+                detail.jumlah_hari;
         }
 
         const templateData = {
@@ -148,6 +171,11 @@ export async function generateFormCuti(pengajuanId) {
                 data.jenis_pengajuan === "CUTI_SAKIT"
                     ? "✓"
                     : "",
+
+            cek_cap:
+                data.jenis_pengajuan === "CUTI_ALASAN_PENTING"
+                    ? "✓"
+                    : "",        
 
             jenis_nip:
                 pegawai.jenis_pegawai === "PNS"
@@ -310,7 +338,11 @@ function namaJenisCutiHeader(jenis) {
 
         ? "CUTI TAHUNAN"
 
-        : "CUTI SAKIT";
+        : jenis == "CUTI_SAKIT"
+
+        ? "CUTI SAKIT"
+
+        : "CUTI ALASAN PENTING";
 
 }
 
@@ -320,7 +352,11 @@ function namaJenisCuti(jenis) {
 
         ? "cuti tahunan"
 
-        : "cuti sakit";
+        : jenis == "CUTI_SAKIT"
+
+        ? "cuti sakit"
+
+        : "cuti alasan penting";
 
 }
 

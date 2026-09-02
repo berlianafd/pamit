@@ -1,7 +1,23 @@
 import { renderLayout }
 from "./layout.js";
 
-export function renderAdminCuti(nama) {
+export function renderAdminCuti(nama, jenisPegawai) {
+
+  const menuPns = jenisPegawai === "PNS"
+    ? `
+      <button
+        class="menu-btn"
+        data-page="pengajuanCutiAlasanPenting">
+
+        <span class="material-symbols-rounded">trending_up</span>
+
+        <span class="menu-text">
+          Pengajuan Cuti Alasan Penting
+        </span>
+
+      </button>
+    `
+    : "";
 
    return renderLayout(
   
@@ -56,6 +72,8 @@ export function renderAdminCuti(nama) {
   </span>
   
   </button>
+
+  ${menuPns}
 
   <button
 class="menu-btn"
