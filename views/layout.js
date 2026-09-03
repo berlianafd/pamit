@@ -12,7 +12,8 @@ export function renderLayout(
 
       <div class="sidebar-header">
 
-        <h2>Pengajuan Cuti & Dinas Luar</h2>
+        <h2>PAMIT</h2>
+        <H4>Portal Administrasi Mobilitas dan Izin Terpadu</H4>
 
         <small>
           Dispendukcapil
