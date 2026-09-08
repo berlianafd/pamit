@@ -5840,17 +5840,23 @@ async function initReviewPengajuan() {
     .getElementById("reviewPengajuanBody")
     .onclick = async (e) => {
 
-      const btn =
-        e.target.closest(".btn-detail-review");
-
-      if (!btn) return;
-
-      await bukaDetailPengajuan(
-
-        Number(btn.dataset.id)
-
-      );
-
+      // ================================ // TOMBOL REVIEW // ================================ 
+      const btnReview = e.target.closest(".btn-detail-review");
+       if (btnReview) {
+         await bukaDetailPengajuan(
+           Number(btnReview.dataset.id) 
+          ); 
+          return; 
+        }
+        
+        // ================================ // TOMBOL HAPUS // ================================ 
+        const btnHapus = e.target.closest(".btn-hapus-pengajuan");
+         if (btnHapus) {
+           await hapusPengajuan(
+             Number(btnHapus.dataset.id)
+             );
+              return;
+             }
     };
 
   document
@@ -6099,6 +6105,14 @@ Detail
 
 </button>
 
+<button
+class="btn-hapus-pengajuan"
+data-id="${item.id}">
+
+Hapus
+
+</button>
+
 </td>
 
 </tr>
@@ -6168,6 +6182,30 @@ async function bukaDetailPengajuan(id) {
     .getElementById("modalDetailPengajuan")
     .showModal();
 
+}
+
+async function hapusPengajuan(id) {
+  window.currentPengajuanId = id;
+
+  if (!confirm("Yakin ingin menghapus pengajuan ini?")) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("pengajuan")
+    .update({ deleted_at: new Date(),
+      delete_reason: "Dihapus oleh admin"
+     })
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    alert("Gagal menghapus pengajuan.");
+    return;
+  }
+
+  alert("Pengajuan berhasil dihapus.");
+  await loadReviewPengajuan(); // Reload the list of applications
 }
 
 async function updateStatusPengajuan(
