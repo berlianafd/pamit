@@ -2490,3 +2490,148 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     }
 
 }
+
+/* Card Container Utama */
+/* Card Container Utama */
+.ultah-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #edf2f7;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    
+    /* UBAH DUA BARIS INI */
+    width: 100%;       /* Paksa isi penuh container */
+    max-width: 100%;   /* Hapus batasan 500px */
+}
+
+/* Judul Card */
+.ultah-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.ultah-header-title h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+/* Header Tabel */
+.ultah-table-header {
+    display: grid;
+    grid-template-columns: 90px 1fr 70px;
+    background-color: #f7edd8; /* Warna krem pastel sesuai desain */
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #5a4b38;
+    letter-spacing: 0.5px;
+    border-top: 1px solid #efe3c9;
+    border-bottom: 1px solid #efe3c9;
+}
+
+.ultah-th-usia {
+    text-align: right;
+}
+
+/* List Item / Baris Data */
+.ultah-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.ultah-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 70px;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.2s;
+}
+
+.ultah-row:last-child {
+    border-bottom: none;
+}
+
+.ultah-row:hover {
+    background-color: #f8fafc;
+}
+
+/* Kolom Hari / Tanggal */
+.ultah-col-hari {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #334155;
+}
+
+.ultah-icon {
+    font-size: 14px;
+}
+
+.ultah-tanggal strong {
+    font-size: 14px;
+    color: #0f172a;
+}
+
+/* Kolom Nama & Avatar */
+.ultah-col-nama {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+}
+
+.ultah-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #475569;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.ultah-nama-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+}
+
+/* Kolom Usia */
+.ultah-col-usia {
+    text-align: right;
+    font-size: 13px;
+    color: #0f172a;
+}
+
+.ultah-col-usia strong {
+    font-size: 14px;
+}
+
+.ultah-unit {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.ultah-empty {
+    padding: 20px;
+    text-align: center;
+    color: #64748b;
+    font-size: 14px;
+}

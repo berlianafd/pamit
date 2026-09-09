@@ -206,6 +206,15 @@ export function dashboardPage(){
 
 <br>
 
+<br>
+
+
+    <div id="ulangTahunBulanIni">
+        Memuat...
+    </div>
+
+<br>
+
 <div class="card">
     <div class="dashboard-title">
         Daftar Pegawai Tanpa Keterangan Tahun Ini

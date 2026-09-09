@@ -7049,6 +7049,8 @@ window.loadDashboardAdminCuti = async function () {
     "dashboardDiprosesBody"
   );
 
+await loadUlangTahunBulanIni();
+
   document
     .getElementById("btnReviewSemua1")
     .onclick = () => {
@@ -7133,6 +7135,8 @@ window.loadDashboardAdminPresensi = async function () {
     "dashboardDiprosesPresensiBody"
   );
 
+  await loadUlangTahunBulanIni();
+  
   document
     .getElementById("btnReviewSemua3")
     .onclick = () => {
@@ -8908,4 +8912,106 @@ function ambilTanggalPengajuan(item) {
 
   return "";
 
+}
+
+async function loadUlangTahunBulanIni() {
+    const container = document.getElementById("ulangTahunBulanIni");
+    if (!container) return;
+
+    const sekarang = new Date();
+    const bulanIni = sekarang.getMonth();
+    const tahunIni = sekarang.getFullYear();
+    const hariIni = sekarang.getDate();
+
+    const { data, error } = await supabase
+        .from("pegawai")
+        .select("nama, nip");
+
+    if (error) {
+        console.error("Gagal mengambil data pegawai:", error);
+        container.innerHTML = `<p class="ultah-empty">Gagal memuat data.</p>`;
+        return;
+    }
+
+    const namaBulanSingkat = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+
+    const dataUlangTahun = data
+        .filter(pegawai => pegawai.nip && String(pegawai.nip).length >= 8)
+        .map(pegawai => {
+            const nip = String(pegawai.nip);
+            const tahunLahir = Number(nip.substring(0, 4));
+            const bulanLahir = Number(nip.substring(4, 6));
+            const hariLahir = Number(nip.substring(6, 8));
+
+            return {
+                nama: pegawai.nama,
+                nip,
+                tahunLahir,
+                bulanLahir,
+                hariLahir
+            };
+        })
+        .filter(pegawai => pegawai.bulanLahir - 1 === bulanIni)
+        .map(pegawai => {
+            let jarak = pegawai.hariLahir - hariIni;
+            const jumlahHariBulanIni = new Date(tahunIni, bulanIni + 1, 0).getDate();
+
+            if (jarak < 0) {
+                jarak += jumlahHariBulanIni;
+            }
+
+            const usia = tahunIni - pegawai.tahunLahir;
+
+            return {
+                ...pegawai,
+                jarak,
+                usia
+            };
+        })
+        .sort((a, b) => a.hariLahir - b.hariLahir); // Urutkan berdasarkan tanggal hari (1..31)
+
+    if (!dataUlangTahun.length) {
+        container.innerHTML = `<p class="ultah-empty">Tidak ada pegawai yang ulang tahun bulan ini.</p>`;
+        return;
+    }
+
+    // Render HTML dengan struktur Card & Table seperti desain
+    const listHtml = dataUlangTahun.map(item => {
+        // Ambil inisial nama untuk Avatar jika tidak ada foto
+       
+        const singkatanBulan = namaBulanSingkat[bulanIni];
+
+        return `
+            <div class="ultah-row">
+                <div class="ultah-col-hari">
+                    <span class="ultah-icon">🎂</span>
+                    <span class="ultah-tanggal"><strong>${item.hariLahir}</strong> ${singkatanBulan}</span>
+                </div>
+                <div class="ultah-col-nama">
+                   
+                    <span class="ultah-nama-text">${item.nama}</span>
+                </div>
+                <div class="ultah-col-usia">
+                    <strong>${item.usia}</strong> <span class="ultah-unit">tahun</span>
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    container.innerHTML = `
+        <div class="ultah-card">
+            <div class="ultah-header-title">
+                <span>🎂</span>
+                <h3>Ulang Tahun Bulan Ini</h3>
+            </div>
+            <div class="ultah-table-header">
+                <div class="ultah-th-hari">📅 TANGGAL</div>
+                <div class="ultah-th-nama">👤 NAMA PEGAWAI</div>
+                <div class="ultah-th-usia">🎖️ USIA</div>
+            </div>
+            <div class="ultah-list">
+                ${listHtml}
+            </div>
+        </div>
+    `;
 }
