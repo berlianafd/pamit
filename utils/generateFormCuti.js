@@ -175,12 +175,12 @@ export async function generateFormCuti(pengajuanId) {
             cek_cap:
                 data.jenis_pengajuan === "CUTI_ALASAN_PENTING"
                     ? "✓"
-                    : "",        
+                    : "",
 
             jenis_nip:
                 pegawai.jenis_pegawai === "PNS"
-                ? "NIP\t"
-                : "NIPPPK",                
+                    ? "NIP\t"
+                    : "NIPPPK",
 
             tahun_sekarang:
 
@@ -286,7 +286,7 @@ export async function generateFormCuti(pengajuanId) {
 
         };
 
-       
+
         // ==============================
         // LOAD TEMPLATE WORD
         // ==============================
@@ -299,7 +299,7 @@ export async function generateFormCuti(pengajuanId) {
 
         );
 
-        
+
         // ==============================
         // UPDATE CATATAN ADMIN
         // ==============================
@@ -340,9 +340,9 @@ function namaJenisCutiHeader(jenis) {
 
         : jenis == "CUTI_SAKIT"
 
-        ? "CUTI SAKIT"
+            ? "CUTI SAKIT"
 
-        : "CUTI ALASAN PENTING";
+            : "CUTI ALASAN PENTING";
 
 }
 
@@ -354,9 +354,9 @@ function namaJenisCuti(jenis) {
 
         : jenis == "CUTI_SAKIT"
 
-        ? "cuti sakit"
+            ? "cuti sakit"
 
-        : "cuti alasan penting";
+            : "cuti alasan penting";
 
 }
 
@@ -598,41 +598,41 @@ async function getAtasan(pegawai) {
     // =====================================================
 
     if (
-    pegawai.jabatan &&
-    (
-        pegawai.jabatan.toLowerCase().includes("kepala bidang") ||
-        pegawai.jabatan.toLowerCase().includes("sekretaris")
-    )
-) {
+        pegawai.jabatan &&
+        (
+            pegawai.jabatan.toLowerCase().includes("kepala bidang") ||
+            pegawai.jabatan.toLowerCase().includes("sekretaris")
+        )
+    ) {
 
-    // ================================
-    // ATASAN 1 = KEPALA DINAS
-    // ================================
+        // ================================
+        // ATASAN 1 = KEPALA DINAS
+        // ================================
 
-    const { data: kadis, error: err1 } = await supabase
-        .from("pegawai")
-        .select("nama,nip,jabatan")
-        .ilike("jabatan", "%Kepala Dinas%")
-        .single();
+        const { data: kadis, error: err1 } = await supabase
+            .from("pegawai")
+            .select("nama,nip,jabatan")
+            .ilike("jabatan", "%Kepala Dinas%")
+            .single();
 
-    if (err1) {
-        console.error("ERROR KADIS:", err1);
+        if (err1) {
+            console.error("ERROR KADIS:", err1);
+        }
+
+        atasan1 = kadis;
+
+
+        // ================================
+        // ATASAN 2 = BUDIAR (FIXED)
+        // ================================
+
+        atasan2 = {
+            nama: "Dr. Ir. BUDIAR, M.Si",
+            nip: "197011191996031004",
+            jabatan: "Sekretaris Daerah"
+        };
+
     }
-
-    atasan1 = kadis;
-
-
-    // ================================
-    // ATASAN 2 = BUDIAR (FIXED)
-    // ================================
-
-    atasan2 = {
-        nama: "Dr. Ir. BUDIAR, M.Si",
-        nip: "197011191996031004",
-        jabatan: "Sekretaris Daerah"
-    };
-
-}
 
     // =====================================================
     // SEKRETARIAT
@@ -643,29 +643,53 @@ async function getAtasan(pegawai) {
         pegawai.unit_kerja == "Sub Bagian Keuangan" ||
         pegawai.unit_kerja == "Sekretariat"
     ) {
+        if (pegawai.jabatan && pegawai.jabatan.toLowerCase().includes("kepala sub bagian")) {
 
-        const { data: kasubbag, error: err1 } = await supabase
-            .from("pegawai")
-            .select("nama,nip,jabatan")
-            .eq("unit_kerja", pegawai.unit_kerja)
-            .ilike("jabatan", "%Kepala Sub Bagian%")
-            .single();
+            const { data: sekretaris, error: err1 } = await supabase
+                .from("pegawai")
+                .select("nama,nip,jabatan")
+                .ilike("jabatan", "%Sekretaris%")
+                .single();
 
-        if (err1) console.error("ERROR KASUBBAG:", err1);
+            if (err1) console.error("ERROR SEKRETARIS:", err1);
 
-        atasan1 = kasubbag;
+            atasan1 = sekretaris;
+
+            const { data: kadis, error: err2 } = await supabase
+                .from("pegawai")
+                .select("nama,nip,jabatan")
+                .ilike("jabatan", "%Kepala Dinas%")
+                .single();
+
+            if (err2) {
+                console.error("ERROR KADIS:", err2);
+            }
+
+            atasan2 = kadis;
+        } else {
+
+            const { data: kasubbag, error: err1 } = await supabase
+                .from("pegawai")
+                .select("nama,nip,jabatan")
+                .eq("unit_kerja", pegawai.unit_kerja)
+                .ilike("jabatan", "%Kepala Sub Bagian%")
+                .single();
+
+            if (err1) console.error("ERROR KASUBBAG:", err1);
+
+            atasan1 = kasubbag;
 
 
-        const { data: sekretaris, error: err2 } = await supabase
-            .from("pegawai")
-            .select("nama,nip,jabatan")
-            .ilike("jabatan", "%Sekretaris%")
-            .single();
+            const { data: sekretaris, error: err2 } = await supabase
+                .from("pegawai")
+                .select("nama,nip,jabatan")
+                .ilike("jabatan", "%Sekretaris%")
+                .single();
 
-        if (err2) console.error("ERROR SEKRETARIS:", err2);
+            if (err2) console.error("ERROR SEKRETARIS:", err2);
 
-        atasan2 = sekretaris;
-
+            atasan2 = sekretaris;
+        }
     }
 
 
