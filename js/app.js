@@ -103,11 +103,17 @@ const KETERANGAN_TK = {
 
   TK: "Tanpa Keterangan",
 
-  PENGAJUAN_CUTI: "Pengajuan cuti dalam proses.",
+  PENGAJUAN_CUTI_TAHUNAN: "Pengajuan cuti tahunan dalam proses.",
+
+  PENGAJUAN_CUTI_SAKIT: "Pengajuan cuti sakit dalam proses.",
+
+  PENGAJUAN_CUTI_ALASAN_PENTING: "Pengajuan cuti alasan penting dalam proses.",
 
   CUTISAKIT: "Cuti Sakit disetujui.",
 
   CUTITAHUNAN: "Cuti Tahunan disetujui.",
+
+  CUTIALASANPENTING: "Cuti Alasan Penting disetujui.",
 
   PENGAJUAN_DL: "Pengajuan dinas luar dalam proses.",
 
@@ -3023,7 +3029,7 @@ async function simpanPengajuanCutiSakit() {
 
     tanggalSelesai,
 
-    KETERANGAN_TK.PENGAJUAN_CUTI
+    KETERANGAN_TK.PENGAJUAN_CUTI_SAKIT
 
   );
 
@@ -3421,7 +3427,7 @@ async function simpanPengajuanCutiAlasanPenting() {
 
     tanggalSelesai,
 
-    KETERANGAN_TK.PENGAJUAN_CUTI
+    KETERANGAN_TK.PENGAJUAN_CUTI_ALASAN_PENTING
 
   );
 
@@ -3762,7 +3768,7 @@ async function simpanPengajuanCutiTahunan() {
   await updateTKKarenaCutiTahunan(
     pegawai.id,
     tanggalCutiDipilih,
-    KETERANGAN_TK.PENGAJUAN_CUTI
+    KETERANGAN_TK.PENGAJUAN_CUTI_TAHUNAN
   );
 
   tanggalCutiDipilih = [];
@@ -8599,7 +8605,28 @@ async function cekKeteranganTK(pegawaiId, tanggal) {
 
         return sudahDisetujui
           ? KETERANGAN_TK.CUTISAKIT
-          : KETERANGAN_TK.PENGAJUAN_CUTI;
+          : KETERANGAN_TK.PENGAJUAN_CUTI_SAKIT;
+      }
+
+    }
+
+    // ==========================
+    // CUTI ALASAN PENTING
+    // ==========================
+
+    if (p.jenis_pengajuan === "CUTI_ALASAN_PENTING") {
+
+      const d = p.cuti_alasan_penting_detail?.[0];
+
+      if (
+        d &&
+        tanggal >= d.tanggal_mulai &&
+        tanggal <= d.tanggal_selesai
+      ) {
+
+        return sudahDisetujui
+          ? KETERANGAN_TK.CUTIALASANPENTING
+          : KETERANGAN_TK.PENGAJUAN_CUTI_ALASAN_PENTING;
       }
 
     }
@@ -8619,7 +8646,7 @@ async function cekKeteranganTK(pegawaiId, tanggal) {
 
         return sudahDisetujui
           ? KETERANGAN_TK.CUTITAHUNAN
-          : KETERANGAN_TK.PENGAJUAN_CUTI;
+          : KETERANGAN_TK.PENGAJUAN_CUTI_TAHUNAN;
 
       }
 
