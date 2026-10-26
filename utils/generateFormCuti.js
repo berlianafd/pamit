@@ -668,26 +668,53 @@ async function getAtasan(pegawai) {
             atasan2 = kadis;
         } else {
 
-            const { data: kasubbag, error: err1 } = await supabase
-                .from("pegawai")
-                .select("nama,nip,jabatan")
-                .eq("unit_kerja", pegawai.unit_kerja)
-                .ilike("jabatan", "%Kepala Sub Bagian%")
-                .single();
+            // const { data: kasubbag, error: err1 } = await supabase
+            //     .from("pegawai")
+            //     .select("nama,nip,jabatan")
+            //     .eq("unit_kerja", pegawai.unit_kerja)
+            //     // .ilike("jabatan", "%Kepala Sub Bagian%")
+            //     .ilike("jabatan", "Kepala Sub Bagian Keuangan")
+            //     .single();
+
+            // if (err1) console.error("ERROR KASUBBAG:", err1);
+
+            // atasan1 = kasubbag;
+
+
+            // const { data: sekretaris, error: err2 } = await supabase
+            //     .from("pegawai")
+            //     .select("nama,nip,jabatan")
+            //     .ilike("jabatan", "%Sekretaris%")
+            //     .single();
+
+            // if (err2) console.error("ERROR SEKRETARIS:", err2);
+
+            // atasan2 = sekretaris;
+
+            // Jika unit_kerja adalah umpeg, arahkan pencarian kasubbag ke unit keu
+            const targetUnitKasubbag = pegawai.unit_kerja === "Sub Bagian Umum dan Kepegawaian" ? "Sub Bagian Keuangan" : pegawai.unit_kerja;
+
+            const [
+                { data: kasubbag, error: err1 },
+                { data: sekretaris, error: err2 }
+            ] = await Promise.all([
+                supabase
+                    .from("pegawai")
+                    .select("nama,nip,jabatan")
+                    .eq("unit_kerja", targetUnitKasubbag) // Mencari berdasarkan unit yang sudah diarahkan
+                    .ilike("jabatan", "%Kepala Sub Bagian%")
+                    .single(),
+                supabase
+                    .from("pegawai")
+                    .select("nama,nip,jabatan")
+                    .ilike("jabatan", "%Sekretaris%")
+                    .single()
+            ]);
 
             if (err1) console.error("ERROR KASUBBAG:", err1);
-
-            atasan1 = kasubbag;
-
-
-            const { data: sekretaris, error: err2 } = await supabase
-                .from("pegawai")
-                .select("nama,nip,jabatan")
-                .ilike("jabatan", "%Sekretaris%")
-                .single();
-
             if (err2) console.error("ERROR SEKRETARIS:", err2);
 
+            atasan1 = kasubbag;
             atasan2 = sekretaris;
         }
     }
