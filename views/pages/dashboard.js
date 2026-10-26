@@ -1,6 +1,6 @@
-export function dashboardPage(){
+export function dashboardPage() {
 
-  return `
+    return `
   <div id="dashboardAdminCuti" hidden>
 
   <div class="dashboard-section">
@@ -149,6 +149,19 @@ export function dashboardPage(){
 
     </div>
 
+
+    <div class="card">
+        <div class="dashboard-title">
+            Daftar Pegawai Tanpa Keterangan Tahun Ini
+        </div>
+
+        <div
+            id="rekapTKContainer"
+            class="rekap-tk-container">
+        </div>
+    </div>
+
+
 </div>
 
 <br>
@@ -208,24 +221,11 @@ export function dashboardPage(){
 
 <br>
 
-
     <div id="ulangTahunBulanIni">
         Memuat...
     </div>
 
 <br>
-
-<div class="card">
-    <div class="dashboard-title">
-        Daftar Pegawai Tanpa Keterangan Tahun Ini
-    </div>
-
-    <div
-        id="rekapTKContainer"
-        class="rekap-tk-container">
-    </div>
-</div>
-
 
 <br>
   
