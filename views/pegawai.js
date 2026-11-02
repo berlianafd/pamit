@@ -37,6 +37,27 @@ export function renderPegawai(nama, jenisPegawai){
 
     </button>
 
+    <button
+      class="menu-btn"
+      data-page="presensi">
+
+      <span class="material-symbols-rounded">calendar_today</span>
+
+      <span class="menu-text">
+        Presensi
+      </span>
+
+    </button>
+
+    <button
+      class="menu-btn"
+      data-page="pengajuanCutiTahunan">
+
+      <span class="material-symbols-rounded">calendar_today</span>
+      </span>
+
+    </button>
+
 
     <button
       class="menu-btn"

@@ -37,6 +37,8 @@ import {
 }
   from "../views/pages/dashboard.js";
 
+import { presensiPage } from "../views/pages/presensi.js";
+
 import {
   masterPegawaiPage
 }
@@ -57,7 +59,7 @@ import {
 }
   from "../views/pages/pengajuanCutiSakit.js";
 
-  import {
+import {
   pengajuanCutiAlasanPentingPage
 }
   from "../views/pages/pengajuanCutiAlasanPenting.js";
@@ -227,7 +229,7 @@ function renderDashboard(role, nama, jenisPegawai) {
     case "admin_presensi":
 
       app.innerHTML =
-        renderAdminPresensi(nama  , jenisPegawai);
+        renderAdminPresensi(nama, jenisPegawai);
       registerPages();
 
       registerMenus();
@@ -438,6 +440,8 @@ function registerPages() {
     "masterPegawai",
     masterPegawaiPage
   );
+
+  registerRoute("presensi", presensiPage);
 
   registerRoute(
     "pengajuanDl",
@@ -1352,6 +1356,520 @@ window.loadPegawai =
 
 window.initMasterPegawai =
   initMasterPegawai;
+
+window.initPresensi = async function () {
+  // 1. Ambil data user yang sedang login dari Supabase
+  const { data: userData } = await supabase.auth.getUser();
+
+  if (!userData || !userData.user) {
+    alert("Sesi login berakhir, silakan login kembali.");
+    return;
+  }
+
+  // 2. Ambil data pegawai berdasarkan email user yang login
+  const { data: pegawai, error } = await supabase
+    .from("pegawai")
+    .select("id, nama")
+    .eq("email", userData.user.email)
+    .single();
+
+  if (error || !pegawai) {
+    console.error("Gagal mengambil data pegawai:", error);
+  } 
+
+  // 3. Jalankan pemuatan riwayat presensi (jika ada fungsinya)
+  if (typeof loadRiwayatPresensi === "function") {
+    loadRiwayatPresensi();
+  }
+
+  // 4. Inisialisasi Otomatis Tanggal, Jam Berjalan, dan Lokasi GPS
+  initLiveDateTimeAndLocation();
+
+  // 5. Setup Tombol Kamera
+
+  const openCameraBtn = document.getElementById("openCameraBtn");
+  const cameraPreviewContainer = document.getElementById("cameraPreviewContainer");
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  const captureBtn = document.getElementById("captureBtn");
+  const capturedImage = document.getElementById("capturedImage");
+
+  let currentStream = null;
+
+  if (openCameraBtn) {
+    openCameraBtn.addEventListener("click", async () => {
+      cameraPreviewContainer.style.display = "block";
+      try {
+        currentStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: false
+        });
+        video.srcObject = currentStream;
+      } catch (err) {
+        alert("Tidak dapat mengakses kamera: " + err.message);
+      }
+    });
+  }
+
+  // 6. Setup Tombol Ambil Foto & Watermark Geotag
+  if (captureBtn) {
+    captureBtn.addEventListener("click", async () => {
+      const context = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const latVal = document.getElementById("latitude").value;
+      const lngVal = document.getElementById("longitude").value;
+      const timeVal = document.getElementById("liveDateTime")?.textContent || "";
+      let alamatTeks = "Alamat: Memuat lokasi...";
+
+      // Tambahkan watermark koordinat dan waktu di atas foto
+      if (latVal && lngVal) {
+        try {
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latVal}&lon=${lngVal}&zoom=18&addressdetails=1`, {
+            headers: {
+              'User-Agent': 'AplikasiAbsensiGeotag/1.0'
+            }
+          });
+          const data = await response.json();
+          if (data && data.display_name) {
+            alamatTeks = data.display_name;
+          }
+        } catch (err) {
+          console.error("Gagal mengambil nama jalan:", err);
+          alamatTeks = `Lat/Lng: ${Number(latVal).toFixed(5)}, ${Number(lngVal).toFixed(5)}`;
+        }
+
+        context.fillStyle = "rgba(0, 0, 0, 0.6)";
+        context.fillRect(10, canvas.height - 105, canvas.width - 20, 95);
+        context.fillStyle = "white";
+        context.font = "11px Arial";
+        context.fillText(`Waktu: ${timeVal}`, 18, canvas.height - 82);
+
+        const maxCharsPerLine = 52;
+        let yOffset = 64;
+        if (alamatTeks.length > maxCharsPerLine) {
+          const baris1Alamat = alamatTeks.substring(0, maxCharsPerLine);
+          const baris2Alamat = alamatTeks.substring(maxCharsPerLine, maxCharsPerLine * 2);
+          context.fillText(`Lokasi: ${baris1Alamat}`, 18, canvas.height - yOffset);
+          yOffset -= 18;
+          context.fillText(`${baris2Alamat}`, 18, canvas.height - yOffset);
+        } else {
+          context.fillText(`Lokasi: ${alamatTeks}`, 18, canvas.height - yOffset);
+        }
+
+        yOffset -= 18;
+        const latFixed = Number(latVal).toFixed(5);
+        const lngFixed = Number(lngVal).toFixed(5);
+        context.fillText(`Lat: ${latFixed}, Long: ${lngFixed}`, 18, canvas.height - yOffset);
+      }
+
+      // Matikan kamera setelah foto diambil
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+      }
+      cameraPreviewContainer.style.display = "none";
+
+      // Ubah ke File Blob agar masuk ke input file form
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          alert("Gagal memproses gambar dari kamera.");
+          return;
+        }
+        const file = new File([blob], `presensi_${Date.now()}.jpg`, { type: "image/jpeg" });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        document.getElementById("photoFile").files = dataTransfer.files;
+
+        capturedImage.src = URL.createObjectURL(blob);
+        capturedImage.style.display = "block";
+      }, "image/jpeg", 0.85);
+    });
+  }
+
+  // 7. Event Submit Form Presensi
+  document
+    .getElementById("attendanceForm")
+    ?.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const photoInput = document.getElementById("photoFile");
+      if (!photoInput || photoInput.files.length === 0) {
+        alert("Silakan ambil foto presensi terlebih dahulu!");
+        return;
+      }
+
+      // Panggil fungsi simpan presensi (hubungkan ke tabel Supabase kamu)
+      // Contoh: simpanDataPresensi();
+      simpanPresensi(); // Pastikan fungsi ini sudah didefinisikan di app.js
+    });
+};
+
+// Fungsi Pendukung untuk Jam Real-time & Lokasi GPS
+function initLiveDateTimeAndLocation() {
+  let mapInstance = null;
+  const liveDateTimeSpan = document.getElementById("liveDateTime");
+  const locationStatus = document.getElementById("locationStatus");
+
+  // Jam Berjalan (Real-time)
+  function updateClock() {
+    const now = new Date();
+    const formattedString = now.toLocaleString("id-ID", {
+      dateStyle: "full",
+      timeStyle: "medium"
+    });
+    if (liveDateTimeSpan) liveDateTimeSpan.textContent = formattedString;
+
+    // Format untuk database (YYYY-MM-DD HH:MM:SS)
+    const dbFormat = now.toISOString().slice(0, 19).replace("T", " ");
+    const timeInput = document.getElementById("attendanceTime");
+    if (timeInput) timeInput.value = dbFormat;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Ambil Lokasi GPS Otomatis
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        document.getElementById("latitude").value = lat;
+        document.getElementById("longitude").value = lng;
+
+        if (locationStatus) {
+          locationStatus.textContent = "Mendeteksi nama alamat...";
+          locationStatus.style.color = "#007bff";
+        }
+
+        // Ambil nama alamat jalan via Nominatim OpenStreetMap
+        let alamatTeks = `Lat: ${lat.toFixed(5)}, Long: ${lng.toFixed(5)}`;
+        try {
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+            headers: { 'User-Agent': 'AplikasiAbsensiGeotag/1.0' }
+          });
+          const data = await response.json();
+          if (data && data.display_name) {
+            alamatTeks = data.display_name;
+          }
+        } catch (err) {
+          console.warn("Gagal mengambil nama jalan untuk UI:", err);
+        }
+
+        // Tampilkan alamat beserta koordinat di bawah peta
+        if (locationStatus) {
+          locationStatus.innerHTML = `<strong>Lokasi Anda:</strong> ${alamatTeks} <br><span style="color: gray; font-size: 11px;">(Lat: ${lat.toFixed(5)}, Long: ${lng.toFixed(5)})</span>`;
+          locationStatus.style.color = "green";
+        }
+
+        // --- RENDER PETA LEAFLET ---
+        // Jika peta sudah pernah dibuat sebelumnya, hapus dulu agar tidak bentrok
+        if (mapInstance) {
+          mapInstance.remove();
+        }
+
+        // Inisialisasi peta dengan opsi interaksi dimatikan (Terkunci / Read-Only)
+        mapInstance = L.map('map', {
+          zoomControl: false,        // Hilangkan tombol zoom (+/-)
+          dragging: false,           // Tidak bisa digeser (pan)
+          scrollWheelZoom: false,    // Tidak bisa zoom pakai scroll mouse
+          doubleClickZoom: false,    // Tidak bisa zoom pakai double click
+          boxZoom: false,
+          keyboard: false
+        }).setView([lat, lng], 17); // Koordinat pusat & tingkat zoom (17 = dekat/detail)
+
+        // Masukkanlayer peta OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap'
+        }).addTo(mapInstance);
+
+        // Tambahkan pin/marker di lokasi pengguna
+        L.marker([lat, lng]).addTo(mapInstance)
+          .bindPopup("Lokasi Anda Saat Ini")
+          .openPopup();
+      },
+      (error) => {
+        if (locationStatus) {
+          locationStatus.textContent = "Gagal mendeteksi lokasi. Pastikan GPS aktif.";
+          locationStatus.style.color = "red";
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  } else {
+    if (locationStatus) {
+      locationStatus.textContent = "Browser tidak mendukung Geolocation.";
+      locationStatus.style.color = "red";
+    }
+  }
+}
+
+
+async function simpanPresensi() {
+  const latitude = document.getElementById("latitude").value;
+  const longitude = document.getElementById("longitude").value;
+  const attendanceTime = document.getElementById("attendanceTime").value;
+  const file = document.getElementById("photoFile").files[0];
+
+  // 1. Validasi Input
+  if (!latitude || !longitude) {
+    alert("Lokasi GPS belum terdeteksi. Pastikan GPS aktif dan izin lokasi diberikan.");
+    return;
+  }
+
+  if (!file) {
+    alert("Foto presensi (geotag) wajib diambil.");
+    return;
+  }
+
+  if (file.type !== "image/jpeg" && file.type !== "image/png") {
+    alert("File foto harus berformat JPG atau PNG.");
+    return;
+  }
+
+  const maxSize = 2 * 1024 * 1024; // Maksimal 2 MB
+  if (file.size > maxSize) {
+    alert("Ukuran file foto maksimal 2 MB.");
+    return;
+  }
+
+  // 2. Ambil data user aktif dari Supabase
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData || !userData.user) {
+    alert("Sesi login berakhir, silakan login kembali.");
+    return;
+  }
+
+  const { data: pegawai, error: pegawaiError } = await supabase
+    .from("pegawai")
+    .select("id, nama")
+    .eq("email", userData.user.email)
+    .single();
+
+  if (pegawaiError || !pegawai) {
+    console.error(pegawaiError);
+    alert("Gagal mengambil data pegawai.");
+    return;
+  }
+
+  // 3. Upload file foto ke bucket Supabase Storage ("bukti_presensi")
+  let filePath;
+  try {
+    // Menggunakan fungsi uploadDokumen (sesuaikan path folder jika perlu, misal folder "PRESENSI")
+    filePath = await uploadDokumen(
+      "bukti_presensi", // Nama bucket
+      "ABSEN",       // Prefix / folder di dalam bucket
+      pegawai.id,       // ID Pegawai sebagai bagian nama file
+      file              // File foto
+    );
+  } catch (err) {
+    console.error(err);
+    alert("Gagal mengupload foto: " + err.message);
+    return;
+  }
+
+  // 4. Generate Nomor Pengajuan / Absensi Unik via RPC
+  const { data: nomorPengajuan, error: nomorError } = await supabase.rpc(
+    "generate_nomor_pengajuan",
+    {
+      p_jenis: "ABSEN" // Atau sesuaikan kode jenis presensi di database kamu
+    }
+  );
+
+  if (nomorError) {
+    console.error(nomorError);
+    alert("Gagal membuat nomor presensi.");
+    return;
+  }
+
+  // 5. Insert ke tabel utama "pengajuan"
+  const { data: pengajuan, error: pengajuanError } = await supabase
+    .from("pengajuan")
+    .insert({
+      nomor_pengajuan: nomorPengajuan,
+      pegawai_id: pegawai.id,
+      jenis_pengajuan: "ABSEN", // Sesuaikan dengan jenis presensi di sistemmu
+      status: "MENUNGGU",          // Atau MENUNGGU / BERHASIL
+      created_by: pegawai.id,
+      created_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  if (pengajuanError) {
+    console.error(pengajuanError);
+    alert("Gagal menyimpan data presensi.");
+    return;
+  }
+
+  // 6. Insert ke tabel detail khusus presensi ("presensi_detail")
+  const { error: detailError } = await supabase
+    .from("presensi_detail")
+    .insert({
+      pengajuan_id: pengajuan.id,
+      waktu_presensi: attendanceTime || new Date().toISOString(),
+      latitude: latitude,
+      longitude: longitude,
+      foto_url: filePath
+    });
+
+  if (detailError) {
+    console.error(detailError);
+    alert("Gagal menyimpan detail presensi.");
+    return;
+  }
+
+  alert("Presensi berhasil disimpan!");
+
+  // Reset form / tampilan setelah berhasil
+  document.getElementById("attendanceForm").reset();
+  document.getElementById("capturedImage").style.display = "none";
+  document.getElementById("locationStatus").textContent = "Mendeteksi ulang lokasi...";
+
+  // Panggil ulang fungsi load riwayat presensi jika ada
+  if (typeof loadRiwayatPresensi === "function") {
+    loadRiwayatPresensi();
+  }
+}
+
+async function loadRiwayatPresensi() {
+  const tbody = document.getElementById("riwayatPresensiBody");
+  if (!tbody) return;
+
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData || !userData.user) return;
+
+  const { data: pegawai } = await supabase
+    .from("pegawai")
+    .select("id")
+    .eq("email", userData.user.email)
+    .single();
+
+  if (!pegawai) return;
+
+  // Mengambil data riwayat pengajuan dengan jenis "ABSEN" (atau sesuaikan kode jenis presensimu)
+  const { data, error } = await supabase
+    .from("pengajuan")
+    .select(`
+      id,
+      nomor_pengajuan,
+      status,
+      created_at,
+      jenis_pengajuan,
+      deleted_at,
+      catatan_admin,
+      presensi_detail(
+        waktu_presensi,
+        latitude,
+        longitude,
+        foto_url
+      )
+    `)
+    .eq("pegawai_id", pegawai.id)
+    .eq("jenis_pengajuan", "ABSEN") // Sesuaikan dengan jenis presensi di database
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  tbody.innerHTML = "";
+
+  data.forEach((p, index) => {
+    const detail = p.presensi_detail?.[0];
+
+    // Format tanggal & waktu presensi
+    let waktuFormatted = "-";
+    if (detail?.waktu_presensi) {
+      const dt = new Date(detail.waktu_presensi);
+      waktuFormatted = dt.toLocaleString("id-ID", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+    }
+
+    // MEMBUAT TOMBOL / LINK KE GOOGLE MAPS DI TAB BARU
+    let lokasiButton = "-";
+    if (detail?.latitude && detail?.longitude) {
+      const lat = detail.latitude;
+      const lng = detail.longitude;
+
+      // Link Google Maps dengan pin titik lokasi (q=lat,lng)
+      const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+
+      lokasiButton = `
+        <a href="${mapsUrl}" target="_blank" class="btn-sm btn-info" style="padding: 10px 10px; background: #17a2b8; color: white; border-radius: 4px; text-decoration: none; font-size: 12px;">
+          📍 Lihat Lokasi
+        </a>
+      `;
+    }
+
+    tbody.innerHTML += `
+      <tr align="center">
+        <td>${index + 1}</td>
+        <td>${waktuFormatted}</td>
+        <td>${lokasiButton}</td>
+        <td>
+          <button
+                  class="btnLihatFoto"
+                  data-id="${p.id}">
+                  📄 Lihat Foto
+          </button>
+
+        </td>
+        <td>
+          ${typeof badgeStatus === "function" ? badgeStatus(p.status) : p.status}
+        </td>
+        <td>
+          
+          ${p.status === "MENUNGGU" || p.status === "HADIR" ? `
+            <button class="btn-danger btn-hapus" data-id="${p.id}">Hapus</button>
+          ` : ""}
+        </td>
+      </tr>
+    `;
+  });
+
+  // Event listener untuk tombol di dalam tabel riwayat (Detail & Hapus)
+  tbody.onclick = async (e) => {
+    const lihat =
+      e.target.closest(".btnLihatFoto");
+
+    if (lihat) {
+
+      await lihatFotoPresensi(
+
+        Number(lihat.dataset.id)
+
+      );
+
+      return;
+
+    }
+    // const detailBtn = e.target.closest(".btn-detail");
+    // if (detailBtn) {
+    //   if (typeof loadDetailPresensi === "function") {
+    //     await loadDetailPresensi(Number(detailBtn.dataset.id));
+    //   }
+    //   return;
+    // }
+
+    const hapusBtn = e.target.closest(".btn-hapus");
+    if (hapusBtn) {
+      if (typeof hapusPresensi === "function") {
+        await hapusPresensi(Number(hapusBtn.dataset.id));
+      }
+      return;
+    }
+  };
+}
+
 
 window.initPengajuanDl = async function () {
   loadRiwayatDl();
@@ -3102,7 +3620,7 @@ async function simpanPengajuanCutiAlasanPenting() {
       .getElementById("tanggalSelesai")
       .value;
 
-      const alasan =
+  const alasan =
     document.getElementById("alasanCutiAlasanPenting").value.trim();
 
   const alamat =
@@ -5137,6 +5655,72 @@ ${p.is_pengaju
 
 }
 
+async function hapusPresensi(id) {
+  if (!confirm("Yakin ingin menghapus presensi ini?")) {
+    return;
+  }
+
+  // 1. Cek status presensi terlebih dahulu
+  const { data, error } = await supabase
+    .from("pengajuan")
+    .select("status")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error(error);
+    alert("Gagal memuat data presensi.");
+    return;
+  }
+
+  // Batasi hanya status tertentu yang boleh dihapus (misal "MENUNGGU" atau "HADIR")
+  if (data.status !== "MENUNGGU" && data.status !== "HADIR") {
+    alert("Presensi yang sudah divalidasi/diproses tidak dapat dihapus.");
+    return;
+  }
+
+  // Pastikan variabel pegawaiLogin tersedia, atau ambil ulang jika belum ada
+  if (typeof pegawaiLogin === 'undefined' || !pegawaiLogin) {
+    const { data: userData } = await supabase.auth.getUser();
+    const { data: pegawai } = await supabase
+      .from("pegawai")
+      .select("id")
+      .eq("email", userData.user.email)
+      .single();
+    pegawaiLogin = pegawai;
+  }
+
+  // 2. Lakukan Soft Delete pada tabel "pengajuan"
+  const { data: updateData, error: updateError } = await supabase
+    .from("pengajuan")
+    .update({
+      deleted_at: new Date().toISOString(),
+      deleted_by: pegawaiLogin?.id || null,
+      delete_reason: "Dihapus oleh pegawai"
+    })
+    .eq("id", id)
+    .select();
+
+  if (updateError) {
+    console.error(updateError);
+    alert("Gagal menghapus presensi.");
+    return;
+  }
+
+  if (!updateData || updateData.length === 0) {
+    alert("Presensi gagal dihapus (tidak memiliki izin update).");
+    return;
+  }
+
+  alert("Presensi berhasil dihapus.");
+
+  // 3. Muat ulang tabel riwayat presensi
+  if (typeof loadRiwayatPresensi === "function") {
+    loadRiwayatPresensi();
+  }
+}
+
+
 async function hapusPengajuanDl(id) {
 
   if (!confirm("Yakin ingin menghapus pengajuan ini?")) {
@@ -5496,6 +6080,74 @@ async function hapusPengajuanCutiTahunan(id) {
 
 }
 
+async function lihatFotoPresensi(id) {
+  const {
+    data,
+    error
+  } =
+    await supabase
+      .from("presensi_detail")
+      .select("foto_url")
+      .eq(
+        "pengajuan_id",
+        id
+      )
+      .single();
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+
+  }
+
+  const {
+    data: urlData,
+    error: urlError
+  }
+    =
+    await supabase
+      .storage
+      .from("bukti_presensi")
+      .createSignedUrl(
+
+        data.foto_url,
+
+        60
+
+      );
+
+  const ext =
+    data.foto_url
+      .split(".")
+      .pop()
+      .toLowerCase();
+
+  if (ext === "pdf") {
+
+    window.open(
+
+      urlData.signedUrl,
+
+      "_blank"
+
+    );
+
+    return;
+
+  }
+
+  window.open(
+
+    urlData.signedUrl,
+
+    "_blank"
+
+  );
+
+}
+
 async function lihatSuratCutiSakit(id) {
   const {
     data,
@@ -5848,21 +6500,21 @@ async function initReviewPengajuan() {
 
       // ================================ // TOMBOL REVIEW // ================================ 
       const btnReview = e.target.closest(".btn-detail-review");
-       if (btnReview) {
-         await bukaDetailPengajuan(
-           Number(btnReview.dataset.id) 
-          ); 
-          return; 
-        }
-        
-        // ================================ // TOMBOL HAPUS // ================================ 
-        const btnHapus = e.target.closest(".btn-hapus-pengajuan");
-         if (btnHapus) {
-           await hapusPengajuan(
-             Number(btnHapus.dataset.id)
-             );
-              return;
-             }
+      if (btnReview) {
+        await bukaDetailPengajuan(
+          Number(btnReview.dataset.id)
+        );
+        return;
+      }
+
+      // ================================ // TOMBOL HAPUS // ================================ 
+      const btnHapus = e.target.closest(".btn-hapus-pengajuan");
+      if (btnHapus) {
+        await hapusPengajuan(
+          Number(btnHapus.dataset.id)
+        );
+        return;
+      }
     };
 
   document
@@ -6011,16 +6663,16 @@ async function loadReviewPengajuan() {
 
   data.sort((a, b) => {
 
-  const statusA = urutanStatus[a.status] ?? 99;
-  const statusB = urutanStatus[b.status] ?? 99;
+    const statusA = urutanStatus[a.status] ?? 99;
+    const statusB = urutanStatus[b.status] ?? 99;
 
-  if (statusA !== statusB) {
-    return statusA - statusB;
-  }
+    if (statusA !== statusB) {
+      return statusA - statusB;
+    }
 
-  // Status sama → gunakan urutan created_at dari Supabase
-  return 0;
-});
+    // Status sama → gunakan urutan created_at dari Supabase
+    return 0;
+  });
   tbody.innerHTML = "";
 
   data.forEach(item => {
@@ -6035,9 +6687,9 @@ async function loadReviewPengajuan() {
 
         : item.jenis_pengajuan === "CUTI_SAKIT"
 
-        ? "Cuti Sakit"
+          ? "Cuti Sakit"
 
-        : "Cuti Alasan Penting";
+          : "Cuti Alasan Penting";
 
     let tanggal = "-";
 
@@ -6070,19 +6722,19 @@ async function loadReviewPengajuan() {
       }
 
     } else if (item.jenis_pengajuan == "CUTI_ALASAN_PENTING") {
-         const cap =
-            item.cuti_alasan_penting_detail?.[0];
+      const cap =
+        item.cuti_alasan_penting_detail?.[0];
 
-          if (cap) {
+      if (cap) {
 
-            tanggal =
-              `${cap.tanggal_mulai}
+        tanggal =
+          `${cap.tanggal_mulai}
             <br>
             s.d.
             <br>
             ${cap.tanggal_selesai}`;
 
-          }
+      }
     }
 
     tbody.innerHTML += `
@@ -6199,9 +6851,10 @@ async function hapusPengajuan(id) {
 
   const { error } = await supabase
     .from("pengajuan")
-    .update({ deleted_at: new Date(),
+    .update({
+      deleted_at: new Date(),
       delete_reason: "Dihapus oleh admin"
-     })
+    })
     .eq("id", id);
 
   if (error) {
@@ -6465,7 +7118,7 @@ async function isiModalDetail(id) {
         `;
 
   } else if (data.jenis_pengajuan == "CUTI_ALASAN_PENTING") {
-const detail =
+    const detail =
       data.cuti_alasan_penting_detail[0];
 
     card.innerHTML = `
@@ -7055,7 +7708,7 @@ window.loadDashboardAdminCuti = async function () {
     "dashboardDiprosesBody"
   );
 
-await loadUlangTahunBulanIni();
+  await loadUlangTahunBulanIni();
 
   document
     .getElementById("btnReviewSemua1")
@@ -7142,7 +7795,7 @@ window.loadDashboardAdminPresensi = async function () {
   );
 
   await loadUlangTahunBulanIni();
-  
+
   document
     .getElementById("btnReviewSemua3")
     .onclick = () => {
@@ -7764,9 +8417,9 @@ async function loadReviewPresensiCuti() {
 
         : item.jenis_pengajuan === "CUTI_SAKIT"
 
-        ? "Cuti Sakit"
+          ? "Cuti Sakit"
 
-        : "Cuti Alasan Penting";
+          : "Cuti Alasan Penting";
 
     let tanggal = "-";
 
@@ -8942,73 +9595,73 @@ function ambilTanggalPengajuan(item) {
 }
 
 async function loadUlangTahunBulanIni() {
-    const container = document.getElementById("ulangTahunBulanIni");
-    if (!container) return;
+  const container = document.getElementById("ulangTahunBulanIni");
+  if (!container) return;
 
-    const sekarang = new Date();
-    const bulanIni = sekarang.getMonth();
-    const tahunIni = sekarang.getFullYear();
-    const hariIni = sekarang.getDate();
+  const sekarang = new Date();
+  const bulanIni = sekarang.getMonth();
+  const tahunIni = sekarang.getFullYear();
+  const hariIni = sekarang.getDate();
 
-    const { data, error } = await supabase
-        .from("pegawai")
-        .select("nama, nip");
+  const { data, error } = await supabase
+    .from("pegawai")
+    .select("nama, nip");
 
-    if (error) {
-        console.error("Gagal mengambil data pegawai:", error);
-        container.innerHTML = `<p class="ultah-empty">Gagal memuat data.</p>`;
-        return;
-    }
+  if (error) {
+    console.error("Gagal mengambil data pegawai:", error);
+    container.innerHTML = `<p class="ultah-empty">Gagal memuat data.</p>`;
+    return;
+  }
 
-    const namaBulanSingkat = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+  const namaBulanSingkat = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
 
-    const dataUlangTahun = data
-        .filter(pegawai => pegawai.nip && String(pegawai.nip).length >= 8)
-        .map(pegawai => {
-            const nip = String(pegawai.nip);
-            const tahunLahir = Number(nip.substring(0, 4));
-            const bulanLahir = Number(nip.substring(4, 6));
-            const hariLahir = Number(nip.substring(6, 8));
+  const dataUlangTahun = data
+    .filter(pegawai => pegawai.nip && String(pegawai.nip).length >= 8)
+    .map(pegawai => {
+      const nip = String(pegawai.nip);
+      const tahunLahir = Number(nip.substring(0, 4));
+      const bulanLahir = Number(nip.substring(4, 6));
+      const hariLahir = Number(nip.substring(6, 8));
 
-            return {
-                nama: pegawai.nama,
-                nip,
-                tahunLahir,
-                bulanLahir,
-                hariLahir
-            };
-        })
-        .filter(pegawai => pegawai.bulanLahir - 1 === bulanIni)
-        .map(pegawai => {
-            let jarak = pegawai.hariLahir - hariIni;
-            const jumlahHariBulanIni = new Date(tahunIni, bulanIni + 1, 0).getDate();
+      return {
+        nama: pegawai.nama,
+        nip,
+        tahunLahir,
+        bulanLahir,
+        hariLahir
+      };
+    })
+    .filter(pegawai => pegawai.bulanLahir - 1 === bulanIni)
+    .map(pegawai => {
+      let jarak = pegawai.hariLahir - hariIni;
+      const jumlahHariBulanIni = new Date(tahunIni, bulanIni + 1, 0).getDate();
 
-            if (jarak < 0) {
-                jarak += jumlahHariBulanIni;
-            }
+      if (jarak < 0) {
+        jarak += jumlahHariBulanIni;
+      }
 
-            const usia = tahunIni - pegawai.tahunLahir;
+      const usia = tahunIni - pegawai.tahunLahir;
 
-            return {
-                ...pegawai,
-                jarak,
-                usia
-            };
-        })
-        .sort((a, b) => a.hariLahir - b.hariLahir); // Urutkan berdasarkan tanggal hari (1..31)
+      return {
+        ...pegawai,
+        jarak,
+        usia
+      };
+    })
+    .sort((a, b) => a.hariLahir - b.hariLahir); // Urutkan berdasarkan tanggal hari (1..31)
 
-    if (!dataUlangTahun.length) {
-        container.innerHTML = `<p class="ultah-empty">Tidak ada pegawai yang ulang tahun bulan ini.</p>`;
-        return;
-    }
+  if (!dataUlangTahun.length) {
+    container.innerHTML = `<p class="ultah-empty">Tidak ada pegawai yang ulang tahun bulan ini.</p>`;
+    return;
+  }
 
-    // Render HTML dengan struktur Card & Table seperti desain
-    const listHtml = dataUlangTahun.map(item => {
-        // Ambil inisial nama untuk Avatar jika tidak ada foto
-       
-        const singkatanBulan = namaBulanSingkat[bulanIni];
+  // Render HTML dengan struktur Card & Table seperti desain
+  const listHtml = dataUlangTahun.map(item => {
+    // Ambil inisial nama untuk Avatar jika tidak ada foto
 
-        return `
+    const singkatanBulan = namaBulanSingkat[bulanIni];
+
+    return `
             <div class="ultah-row">
                 <div class="ultah-col-hari">
                     <span class="ultah-icon">🎂</span>
@@ -9023,9 +9676,9 @@ async function loadUlangTahunBulanIni() {
                 </div>
             </div>
         `;
-    }).join("");
+  }).join("");
 
-    container.innerHTML = `
+  container.innerHTML = `
         <div class="ultah-card">
             <div class="ultah-header-title">
                 <span>🎂</span>
