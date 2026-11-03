@@ -52,7 +52,7 @@ export function navigate(name) {
     if (name === "presensi") {
 
       window.initPresensi();
-      
+
     }
 
     if (name === "pengajuanDl") {
@@ -90,6 +90,12 @@ export function navigate(name) {
       window.initSaldoCuti();
 
     }
+
+    if (name === "pengajuanAbsensi") {
+
+      window.initReviewPengajuanAbsensi();   
+    }
+
 
     if (name === "reviewPresensiCuti") {
 

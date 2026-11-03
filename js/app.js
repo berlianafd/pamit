@@ -50,6 +50,11 @@ import {
   from "../views/pages/pengajuanDl.js";
 
 import {
+  pengajuanAbsensiPage
+}
+  from "../views/pages/pengajuanAbsensi.js";
+
+import {
   pengajuanCutiTahunanPage
 }
   from "../views/pages/pengajuanCutiTahunan.js";
@@ -461,6 +466,11 @@ function registerPages() {
   registerRoute(
     "pengajuanCutiAlasanPenting",
     pengajuanCutiAlasanPentingPage
+  );
+
+  registerRoute(
+    "pengajuanAbsensi",
+    pengajuanAbsensiPage
   );
 
   registerRoute(
@@ -1359,23 +1369,23 @@ window.initMasterPegawai =
 
 window.initPresensi = async function () {
   // 1. Ambil data user yang sedang login dari Supabase
-  const { data: userData } = await supabase.auth.getUser();
+  // const { data: userData } = await supabase.auth.getUser();
 
-  if (!userData || !userData.user) {
-    alert("Sesi login berakhir, silakan login kembali.");
-    return;
-  }
+  // if (!userData || !userData.user) {
+  //   alert("Sesi login berakhir, silakan login kembali.");
+  //   return;
+  // }
 
-  // 2. Ambil data pegawai berdasarkan email user yang login
-  const { data: pegawai, error } = await supabase
-    .from("pegawai")
-    .select("id, nama")
-    .eq("email", userData.user.email)
-    .single();
+  // // 2. Ambil data pegawai berdasarkan email user yang login
+  // const { data: pegawai, error } = await supabase
+  //   .from("pegawai")
+  //   .select("id, nama")
+  //   .eq("email", userData.user.email)
+  //   .single();
 
-  if (error || !pegawai) {
-    console.error("Gagal mengambil data pegawai:", error);
-  } 
+  // if (error || !pegawai) {
+  //   console.error("Gagal mengambil data pegawai:", error);
+  // } 
 
   // 3. Jalankan pemuatan riwayat presensi (jika ada fungsinya)
   if (typeof loadRiwayatPresensi === "function") {
@@ -8656,6 +8666,7 @@ window.initReviewPresensiDL = async function () {
 
 }
 
+
 async function loadReviewPresensiDL() {
 
   const tbody = document.getElementById(
@@ -9090,6 +9101,344 @@ ${p.is_pengaju
     )
     .showModal();
 
+}
+
+window.initReviewPengajuanAbsensi = async function () {
+  await loadReviewPresensiAbsen();
+
+  document
+    .getElementById("reviewPresensiAbsenBody")
+    .onclick = async (e) => {
+      const btnLihatFoto = e.target.closest(".btn-lihat-foto");
+      if (btnLihatFoto) {
+        window.open(btnLihatFoto.dataset.url, "_blank");
+        return;
+      }
+
+      const btn = e.target.closest(".btn-detail-review");
+      if (!btn) return;
+
+      await bukaDetailPresensiAbsen(Number(btn.dataset.id));
+    };
+
+  document
+    .getElementById("btnSetujuiAbsen")
+    .onclick = async () => {
+      await approvePresensiAbsen(window.currentPengajuanId);
+    };
+
+  document
+    .getElementById("btnTolakAbsen")
+    .onclick = () => {
+      document.getElementById("modalTolakAbsen").showModal();
+    };
+
+  document
+    .getElementById("btnBatalTolakAbsen")
+    .onclick = () => {
+      document.getElementById("modalTolakAbsen").close();
+    };
+
+  document
+    .getElementById("btnSimpanTolakAbsen")
+    .onclick = async () => {
+      const alasan = document
+        .getElementById("txtAlasanTolakAbsen")
+        .value
+        .trim();
+
+      if (!alasan) {
+        alert("Alasan penolakan wajib diisi.");
+        return;
+      }
+
+      await tolakPresensiAbsen(window.currentPengajuanId, alasan);
+    };
+}
+
+
+async function loadReviewPresensiAbsen() {
+  const tbody = document.getElementById("reviewPresensiAbsenBody");
+  if (!tbody) return;
+
+  const { data, error } = await supabase
+    .from("pengajuan")
+    .select(`
+      id,
+      nomor_pengajuan,
+      jenis_pengajuan,
+      status,
+      catatan_admin,
+      created_at,
+
+      pegawai!pengajuan_pegawai_id_fkey(
+        nama
+      ),
+
+      presensi_detail(
+        waktu_presensi,
+        latitude,
+        longitude,
+        foto_url
+      )
+    `)
+    .eq("jenis_pengajuan", "ABSEN") // Sesuaikan dengan jenis presensi di DB
+    .is("deleted_at", null);
+
+  if (error) {
+    console.error(error);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" align="center">Gagal memuat data presensi</td>
+      </tr>
+    `;
+    return;
+  }
+
+  const urutanStatus = {
+    "MENUNGGU": 1,
+    "DIPROSES": 2,
+    "HADIR": 3,
+    "DISETUJUI": 3,
+    "DITOLAK": 4,
+    "SELESAI": 5
+  };
+
+  data.sort((a, b) => {
+    const statusA = urutanStatus[a.status] ?? 99;
+    const statusB = urutanStatus[b.status] ?? 99;
+
+    if (statusA !== statusB) {
+      return statusA - statusB;
+    }
+
+    // Jika status sama, urutkan dari yang terbaru
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+
+  tbody.innerHTML = "";
+
+  data.forEach((item, index) => {
+    const namaPegawai = item.pegawai?.nama ? `👤 <b>${item.pegawai.nama}</b>` : "-";
+    const detail = item.presensi_detail?.[0];
+
+    // Format waktu presensi
+    let waktuFormatted = "-";
+    if (detail?.waktu_presensi) {
+      const dt = new Date(detail.waktu_presensi);
+      waktuFormatted = dt.toLocaleString("id-ID", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+    }
+
+    tbody.innerHTML += `
+      <tr align="center">
+        <td>${index + 1}</td>
+        <td>${item.nomor_pengajuan}</td>
+        <td>${namaPegawai}</td>
+        <td>${waktuFormatted}</td>
+        <td>${typeof badgeStatus === "function" ? badgeStatus(item.status) : item.status}</td>
+        <td>${item.catatan_admin ?? "-"}</td>
+        <td>
+          ${item.status === "MENUNGGU" ? `
+            <button class="btn btn-primary btn-detail-review" data-id="${item.id}">Review</button>
+          ` : item.status === "DIPROSES" ? `
+            <button class="btn btn-warning btn-detail-review" data-id="${item.id}">Lanjutkan Review</button>
+          ` : `
+            <button class="btn btn-success" disabled>✔ Selesai</button>
+          `}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+async function bukaDetailPresensiAbsen(id) {
+  window.currentPengajuanId = id;
+
+  const { data, error } = await supabase
+    .from("pengajuan")
+    .select(`id, status`)
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  // Jika masih MENUNGGU, ubah otomatis jadi DIPROSES saat dibuka admin
+  if (data.status === "MENUNGGU") {
+    if (typeof updateStatusPengajuan === "function") {
+      await updateStatusPengajuan(id, "DIPROSES", "Presensi sedang diverifikasi oleh admin.");
+    }
+  }
+
+  await loadReviewPresensiAbsen();
+  await isiModalDetailPresensiAbsen(id);
+}
+
+
+async function approvePresensiAbsen(id) {
+  if (typeof updateStatusPengajuan === "function") {
+    await updateStatusPengajuan(id, "SELESAI", "Presensi divalidasi dan disetujui.");
+  }
+
+  const modal = document.getElementById("modalDetailPresensiAbsen");
+  if (modal) modal.close();
+
+  await loadReviewPresensiAbsen();
+}
+
+
+async function tolakPresensiAbsen(id, alasan) {
+  if (typeof updateStatusPengajuan === "function") {
+    await updateStatusPengajuan(id, "DITOLAK", alasan);
+  }
+
+  document.getElementById("modalTolakAbsen")?.close();
+  document.getElementById("modalDetailPresensiAbsen")?.close();
+  document.getElementById("txtAlasanTolakAbsen").value = "";
+
+  await loadReviewPresensiAbsen();
+}
+
+
+async function isiModalDetailPresensiAbsen(id) {
+  const { data, error } = await supabase
+    .from("pengajuan")
+    .select(`
+      nomor_pengajuan,
+      status,
+      pegawai!pengajuan_pegawai_id_fkey(
+        nama,
+        email
+      ),
+      presensi_detail(
+        waktu_presensi,
+        latitude,
+        longitude,
+        foto_url
+      )
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const detail = data.presensi_detail?.[0];
+  let fotoPublicUrl = "";
+
+  // Ambil URL akses foto dari bucket Supabase Storage ("bukti_presensi")
+  if (detail && detail.foto_url) {
+    try {
+      // Jika bucket kamu berstatus PUBLIC, gunakan getPublicUrl:
+      // const { data: publicData } = supabase
+      //   .storage
+      //   .from("bukti_presensi")
+      //   .getPublicUrl(detail.foto_url);
+      
+      // fotoPublicUrl = publicData.publicUrl;
+
+      // CATATAN: Jika bucket kamu PRIVATE (butuh signed URL), gunakan blok ini sebagai ganti getPublicUrl:
+      const { data: signedData, error: signError } = await supabase
+        .storage
+        .from("bukti_presensi")
+        .createSignedUrl(detail.foto_url, 60 * 5); // berlaku 5 menit
+
+      if (!signError) fotoPublicUrl = signedData.signedUrl;
+      
+    } catch (err) {
+      console.error("Gagal memuat URL foto:", err);
+    }
+  }
+
+  renderModalDetailPresensiAbsen(data, fotoPublicUrl);
+}
+
+
+function renderModalDetailPresensiAbsen(data, fotoPublicUrl) {
+  const detail = data.presensi_detail?.[0];
+  const pegawai = data.pegawai;
+  const body = document.getElementById("detailAbsenBody");
+
+  if (!body) return;
+
+  let waktuFormatted = "-";
+  if (detail?.waktu_presensi) {
+    waktuFormatted = new Date(detail.waktu_presensi).toLocaleString("id-ID", {
+      dateStyle: "full",
+      timeStyle: "medium"
+    });
+  }
+
+  const lat = detail?.latitude;
+  const lng = detail?.longitude;
+
+  body.innerHTML = `
+    <div style="font-size: 14px; line-height: 1.6;">
+      <p style="margin: 0 0 8px 0;"><strong>Nomor Presensi:</strong> ${data.nomor_pengajuan}</p>
+      <p style="margin: 0 0 8px 0;"><strong>Pegawai:</strong> ${pegawai?.nama ?? "-"} (${pegawai?.email ?? "-"})</p>
+      <p style="margin: 0 0 8px 0;"><strong>Waktu:</strong> ${waktuFormatted}</p>
+      <p style="margin: 0 0 12px 0;"><strong>Status:</strong> ${data.status}</p>
+
+      <div style="margin-bottom: 12px;">
+        <strong>Titik Lokasi Peta:</strong>
+        ${lat && lng ? `
+          <div id="modalMap" style="width: 100%; height: 160px; border-radius: 6px; margin-top: 5px; border: 1px solid #ccc;"></div>
+          <p style="font-size: 11px; color: gray; margin: 4px 0 0 0;">Lat: ${lat}, Long: ${lng}</p>
+        ` : "<p>-</p>"}
+      </div>
+
+      <div>
+        <strong>Foto Bukti Kehadiran (Geotag):</strong>
+        <div style="margin-top: 5px; text-align: center; background: #000; border-radius: 6px; padding: 5px;">
+          ${detail?.foto_url ? `
+            <img src="${fotoPublicUrl}" alt="Preview Foto Presensi" style="max-width: 100%; max-height: 220px; border-radius: 4px; display: block; margin: 0 auto;" />
+          ` : "<p style='color:white;'>Tidak ada foto</p>"}
+        </div>
+      </div>
+    </div>
+  `;
+
+  const modal = document.getElementById("modalDetailPresensiAbsen");
+  if (modal) {
+    modal.showModal();
+
+    // Render Peta Leaflet di dalam Modal setelah modal terbuka
+    if (lat && lng && typeof L !== 'undefined') {
+      setTimeout(() => {
+        const mapContainer = document.getElementById("modalMap");
+        if (mapContainer) {
+          // Bersihkan map instance sebelumnya jika ada agar tidak bentrok
+          if (mapContainer._leaflet_id) {
+            mapContainer._leaflet_id = null;
+          }
+          
+          const modalMapInstance = L.map('modalMap', {
+            zoomControl: false,
+            dragging: false,
+            scrollWheelZoom: false,
+            doubleClickZoom: false,
+            boxZoom: false,
+            keyboard: false
+          }).setView([lat, lng], 17);
+
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+          }).addTo(modalMapInstance);
+
+          L.marker([lat, lng]).addTo(modalMapInstance);
+        }
+      }, 100); // Beri jeda sedikit agar dialog/modal selesai merender DOM-nya
+    }
+  }
 }
 
 async function updateTKBerdasarkanRentangTanggal(

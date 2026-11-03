@@ -41,7 +41,7 @@ export function renderAdminCuti(nama, jenisPegawai) {
       class="menu-btn"
       data-page="presensi">
 
-      <span class="material-symbols-rounded">calendar_today</span>
+      <span class="material-symbols-rounded">schedule</span>
 
       <span class="menu-text">
         Presensi

@@ -41,7 +41,7 @@ export function renderSuperadmin(nama, jenisPegawai) {
       class="menu-btn"
       data-page="presensi">
 
-      <span class="material-symbols-rounded">calendar_today</span>
+      <span class="material-symbols-rounded">schedule</span>
 
       <span class="menu-text">
         Presensi
@@ -113,6 +113,24 @@ account_balance_wallet
 <span class="menu-text">
 
 Saldo Cuti
+</span>
+
+</button>
+
+<button
+class="menu-btn"
+data-page="pengajuanAbsensi">
+
+<span class="material-symbols-rounded">
+
+fact_check
+
+</span>
+
+<span class="menu-text">
+
+Review Pengajuan Absensi
+
 </span>
 
 </button>
