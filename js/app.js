@@ -1,98 +1,23 @@
-import { supabase }
-  from "./supabase.js";
-
-import {
-  renderLogin
-}
-  from "../views/login.js";
-
-import {
-  renderPegawai
-}
-  from "../views/pegawai.js";
-
-import {
-  renderAdminCuti
-}
-  from "../views/adminCuti.js";
-
-import {
-  renderAdminPresensi
-}
-  from "../views/adminPresensi.js";
-
-import {
-  renderSuperadmin
-}
-  from "../views/superadmin.js";
-
-import {
-  registerRoute,
-  navigate
-}
-  from "./router.js";
-
-import {
-  dashboardPage
-}
-  from "../views/pages/dashboard.js";
-
+import { supabase } from "./supabase.js";
+import { renderLogin } from "../views/login.js";
+import { renderPegawai } from "../views/pegawai.js";
+import { renderAdminCuti } from "../views/adminCuti.js";
+import { renderAdminPresensi } from "../views/adminPresensi.js";
+import { renderSuperadmin } from "../views/superadmin.js";
+import { registerRoute, navigate } from "./router.js";
+import { dashboardPage } from "../views/pages/dashboard.js";
 import { presensiPage } from "../views/pages/presensi.js";
-
-import {
-  masterPegawaiPage
-}
-  from "../views/pages/masterPegawai.js";
-
-import {
-  pengajuanDlPage
-}
-  from "../views/pages/pengajuanDl.js";
-
-import {
-  pengajuanAbsensiPage
-}
-  from "../views/pages/pengajuanAbsensi.js";
-
-import {
-  pengajuanCutiTahunanPage
-}
-  from "../views/pages/pengajuanCutiTahunan.js";
-
-import {
-  pengajuanCutiSakitPage
-}
-  from "../views/pages/pengajuanCutiSakit.js";
-
-import {
-  pengajuanCutiAlasanPentingPage
-}
-  from "../views/pages/pengajuanCutiAlasanPenting.js";
-
-import {
-  pengajuanKendalaPresensiPage
-}
-  from "../views/pages/pengajuanKendalaPresensi.js";
-
-import {
-  uploadDokumen
-}
-  from "../utils/upload.js";
-
-import {
-  reviewPengajuanPage
-}
-  from "../views/pages/reviewPengajuan.js";
-
-import {
-  reviewPresensiCutiPage
-}
-  from "../views/pages/reviewPresensiCuti.js";
-
-import {
-  generateFormCuti
-} from "../utils/generateFormCuti.js";
-
+import { masterPegawaiPage } from "../views/pages/masterPegawai.js";
+import { pengajuanDlPage } from "../views/pages/pengajuanDl.js";
+import { pengajuanAbsensiPage } from "../views/pages/pengajuanAbsensi.js";
+import { pengajuanCutiTahunanPage } from "../views/pages/pengajuanCutiTahunan.js";
+import { pengajuanCutiSakitPage } from "../views/pages/pengajuanCutiSakit.js";
+import { pengajuanCutiAlasanPentingPage } from "../views/pages/pengajuanCutiAlasanPenting.js";
+import { pengajuanKendalaPresensiPage } from "../views/pages/pengajuanKendalaPresensi.js";
+import { uploadDokumen } from "../utils/upload.js";
+import { reviewPengajuanPage } from "../views/pages/reviewPengajuan.js";
+import { reviewPresensiCutiPage } from "../views/pages/reviewPresensiCuti.js";
+import { generateFormCuti } from "../utils/generateFormCuti.js";
 import { saldoCutiPage } from "../views/pages/saldoCuti.js";
 import { reviewPresensiDLPage } from "../views/pages/reviewPresensiDL.js";
 import { presensiTKPage } from "../views/pages/presensiTK.js";
@@ -106,48 +31,34 @@ let pegawaiLogin = null;
 let tanggalCutiDipilih = [];
 let calendarCuti = null;
 let daftarPegawaiTK = [];
+let currentUltahDate = new Date(); // Default ke bulan dan tahun saat ini
+
 const KETERANGAN_TK = {
-
   TK: "Tanpa Keterangan",
-
   PENGAJUAN_CUTI_TAHUNAN: "Pengajuan cuti tahunan dalam proses.",
-
   PENGAJUAN_CUTI_SAKIT: "Pengajuan cuti sakit dalam proses.",
-
   PENGAJUAN_CUTI_ALASAN_PENTING: "Pengajuan cuti alasan penting dalam proses.",
-
   CUTISAKIT: "Cuti Sakit disetujui.",
-
   CUTITAHUNAN: "Cuti Tahunan disetujui.",
-
   CUTIALASANPENTING: "Cuti Alasan Penting disetujui.",
-
   PENGAJUAN_DL: "Pengajuan dinas luar dalam proses.",
-
   DL: "Dinas luar disetujui.",
-
 };
-window.loadRekapTK = loadRekapTK;
 
+window.loadRekapTK = loadRekapTK;
 const app =
   document.getElementById("app");
-
 start();
 
 async function start() {
-
   try {
-
     const {
       data: userData
     } = await supabase.auth.getUser();
 
     if (!userData?.user) {
-
       showLogin();
-
       return;
-
     }
 
     const {
@@ -183,103 +94,40 @@ async function start() {
 
   }
   catch (err) {
-
     console.error(err);
 
     app.innerHTML =
       "<h2>Terjadi kesalahan</h2>";
-
   }
 
 }
 
 function renderDashboard(role, nama, jenisPegawai) {
-
   switch (role) {
-
     case "pegawai":
-
-      app.innerHTML =
-        renderPegawai(nama, jenisPegawai);
-      registerPages();
-
-      registerMenus();
-
-      initSidebar();
-
-      navigate(
-        "dashboard"
-      );
-
+      app.innerHTML = renderPegawai(nama, jenisPegawai);
       break;
-
     case "admin_cuti":
-
-      app.innerHTML =
-        renderAdminCuti(nama, jenisPegawai);
-      registerPages();
-
-      registerMenus();
-
-      initSidebar();
-
+      app.innerHTML = renderAdminCuti(nama, jenisPegawai);
       window.loadDashboardAdmin = loadDashboardAdminCuti;
-
-      navigate(
-        "dashboard"
-      );
-
       break;
-
     case "admin_presensi":
-
-      app.innerHTML =
-        renderAdminPresensi(nama, jenisPegawai);
-      registerPages();
-
-      registerMenus();
-
-      initSidebar();
-
+      app.innerHTML = renderAdminPresensi(nama, jenisPegawai);
       window.loadDashboardAdmin = loadDashboardAdminPresensi;
-
-      navigate(
-        "dashboard"
-      );
-
       break;
-
     case "superadmin":
-
-      app.innerHTML =
-        renderSuperadmin(nama, jenisPegawai);
-
-      registerPages();
-
-      registerMenus();
-
-      initSidebar();
-
+      app.innerHTML = renderSuperadmin(nama, jenisPegawai);
       window.loadDashboardAdmin = loadDashboardAdminPresensi;
-
-      navigate(
-        "dashboard"
-      );
-
       break;
-
     default:
-
-      app.innerHTML =
-        `
-        <h2>Role tidak dikenali</h2>
-        <p>${role}</p>
-        `;
-
+      app.innerHTML = `<h2>Role tidak dikenali</h2><p>${role}</p>`;
+      return;
   }
-
+  registerPages();
+  registerMenus();
+  initSidebar();
+  navigate("dashboard");
   registerLogout();
-
 }
 
 function showLogin() {
@@ -446,7 +294,9 @@ function registerPages() {
     masterPegawaiPage
   );
 
-  registerRoute("presensi", presensiPage);
+  registerRoute(
+    "presensi", 
+    presensiPage);
 
   registerRoute(
     "pengajuanDl",
@@ -9342,7 +9192,7 @@ async function isiModalDetailPresensiAbsen(id) {
       //   .storage
       //   .from("bukti_presensi")
       //   .getPublicUrl(detail.foto_url);
-      
+
       // fotoPublicUrl = publicData.publicUrl;
 
       // CATATAN: Jika bucket kamu PRIVATE (butuh signed URL), gunakan blok ini sebagai ganti getPublicUrl:
@@ -9352,7 +9202,7 @@ async function isiModalDetailPresensiAbsen(id) {
         .createSignedUrl(detail.foto_url, 60 * 5); // berlaku 5 menit
 
       if (!signError) fotoPublicUrl = signedData.signedUrl;
-      
+
     } catch (err) {
       console.error("Gagal memuat URL foto:", err);
     }
@@ -9419,7 +9269,7 @@ function renderModalDetailPresensiAbsen(data, fotoPublicUrl) {
           if (mapContainer._leaflet_id) {
             mapContainer._leaflet_id = null;
           }
-          
+
           const modalMapInstance = L.map('modalMap', {
             zoomControl: false,
             dragging: false,
@@ -9947,14 +9797,15 @@ async function loadUlangTahunBulanIni() {
   const container = document.getElementById("ulangTahunBulanIni");
   if (!container) return;
 
-  const sekarang = new Date();
-  const bulanIni = sekarang.getMonth();
-  const tahunIni = sekarang.getFullYear();
-  const hariIni = sekarang.getDate();
+  const bulanAktif = currentUltahDate.getMonth(); // 0 - 11
+  const tahunAktif = currentUltahDate.getFullYear();
+  const hariIni = new Date().getDate();
+  const isBulanIni = (bulanAktif === new Date().getMonth() && tahunAktif === new Date().getFullYear());
 
   const { data, error } = await supabase
     .from("pegawai")
-    .select("nama, nip");
+    .select("nama, nip")
+    .eq("aktif", true);
 
   if (error) {
     console.error("Gagal mengambil data pegawai:", error);
@@ -9962,6 +9813,7 @@ async function loadUlangTahunBulanIni() {
     return;
   }
 
+  const namaBulanLengkap = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
   const namaBulanSingkat = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
 
   const dataUlangTahun = data
@@ -9980,67 +9832,67 @@ async function loadUlangTahunBulanIni() {
         hariLahir
       };
     })
-    .filter(pegawai => pegawai.bulanLahir - 1 === bulanIni)
+    .filter(pegawai => pegawai.bulanLahir - 1 === bulanAktif)
     .map(pegawai => {
-      let jarak = pegawai.hariLahir - hariIni;
-      const jumlahHariBulanIni = new Date(tahunIni, bulanIni + 1, 0).getDate();
-
-      if (jarak < 0) {
-        jarak += jumlahHariBulanIni;
-      }
-
-      const usia = tahunIni - pegawai.tahunLahir;
-
+      const usia = tahunAktif - pegawai.tahunLahir;
       return {
         ...pegawai,
-        jarak,
         usia
       };
     })
-    .sort((a, b) => a.hariLahir - b.hariLahir); // Urutkan berdasarkan tanggal hari (1..31)
+    .sort((a, b) => a.hariLahir - b.hariLahir);
 
-  if (!dataUlangTahun.length) {
-    container.innerHTML = `<p class="ultah-empty">Tidak ada pegawai yang ulang tahun bulan ini.</p>`;
-    return;
-  }
-
-  // Render HTML dengan struktur Card & Table seperti desain
-  const listHtml = dataUlangTahun.map(item => {
-    // Ambil inisial nama untuk Avatar jika tidak ada foto
-
-    const singkatanBulan = namaBulanSingkat[bulanIni];
-
-    return `
-            <div class="ultah-row">
-                <div class="ultah-col-hari">
-                    <span class="ultah-icon">🎂</span>
-                    <span class="ultah-tanggal"><strong>${item.hariLahir}</strong> ${singkatanBulan}</span>
-                </div>
-                <div class="ultah-col-nama">
-                   
-                    <span class="ultah-nama-text">${item.nama}</span>
-                </div>
-                <div class="ultah-col-usia">
-                    <strong>${item.usia}</strong> <span class="ultah-unit">tahun</span>
-                </div>
+  // Render HTML daftar ulang tahun
+  let listHtml = "";
+  if (dataUlangTahun.length === 0) {
+    listHtml = `<p class="ultah-empty" style="text-align: center; padding: 15px; color: gray;">Tidak ada pegawai yang ulang tahun di bulan ini.</p>`;
+  } else {
+    listHtml = dataUlangTahun.map(item => {
+      const singkatanBulan = namaBulanSingkat[bulanAktif];
+      return `
+        <div class="ultah-row">
+            <div class="ultah-col-hari">
+                <span class="ultah-icon">🎂</span>
+                <span class="ultah-tanggal"><strong>${item.hariLahir}</strong> ${singkatanBulan}</span>
             </div>
-        `;
-  }).join("");
-
-  container.innerHTML = `
-        <div class="ultah-card">
-            <div class="ultah-header-title">
-                <span>🎂</span>
-                <h3>Ulang Tahun Bulan Ini</h3>
+            <div class="ultah-col-nama">
+                <span class="ultah-nama-text">${item.nama}</span>
             </div>
-            <div class="ultah-table-header">
-                <div class="ultah-th-hari">📅 TANGGAL</div>
-                <div class="ultah-th-nama">👤 NAMA PEGAWAI</div>
-                <div class="ultah-th-usia">🎖️ USIA</div>
-            </div>
-            <div class="ultah-list">
-                ${listHtml}
+            <div class="ultah-col-usia">
+                <strong>${item.usia}</strong> <span class="ultah-unit">tahun</span>
             </div>
         </div>
-    `;
+      `;
+    }).join("");
+  }
+
+  // Bungkus dengan Header Navigasi Bulan (Sebelumnya & Selanjutnya)
+  container.innerHTML = `
+    <div class="ultah-card">
+        <div class="ultah-header-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <button id="btnPrevUltah" class="btn btn-sm btn-secondary" style="cursor: pointer; padding: 4px 10px;">◀</button>
+            <h3 style="margin: 0; font-size: 16px;">🎂 Ulang Tahun ${namaBulanLengkap[bulanAktif]} ${tahunAktif}</h3>
+            <button id="btnNextUltah" class="btn btn-sm btn-secondary" style="cursor: pointer; padding: 4px 10px;">▶</button>
+        </div>
+        <div class="ultah-table-header">
+            <div class="ultah-th-hari">📅 TANGGAL</div>
+            <div class="ultah-th-nama">👤 NAMA PEGAWAI</div>
+            <div class="ultah-th-usia">🎖️ USIA</div>
+        </div>
+        <div class="ultah-list">
+            ${listHtml}
+        </div>
+    </div>
+  `;
+
+  // Event Listener untuk Tombol Navigasi Bulan
+  document.getElementById("btnPrevUltah").onclick = () => {
+    currentUltahDate.setMonth(currentUltahDate.getMonth() - 1);
+    loadUlangTahunBulanIni();
+  };
+
+  document.getElementById("btnNextUltah").onclick = () => {
+    currentUltahDate.setMonth(currentUltahDate.getMonth() + 1);
+    loadUlangTahunBulanIni();
+  };
 }

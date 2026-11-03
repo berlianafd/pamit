@@ -149,19 +149,6 @@ export function dashboardPage() {
 
     </div>
 
-
-    <div class="card">
-        <div class="dashboard-title">
-            Daftar Pegawai Tanpa Keterangan Tahun Ini
-        </div>
-
-        <div
-            id="rekapTKContainer"
-            class="rekap-tk-container">
-        </div>
-    </div>
-
-
 </div>
 
 <br>
@@ -212,6 +199,18 @@ export function dashboardPage() {
     </div>
 
 </div>
+<br>
+
+<div class="card">
+        <div class="dashboard-title">
+            Daftar Pegawai Tanpa Keterangan Tahun Ini
+        </div>
+
+        <div
+            id="rekapTKContainer"
+            class="rekap-tk-container">
+        </div>
+    </div>
 
 </div>
 
