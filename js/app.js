@@ -7494,6 +7494,122 @@ async function updateSaldoCuti(pegawaiId, jumlahHari) {
 
 }
 
+window.loadDashboardPassword = async function () {
+  // Tambahkan listener ini di dalam fungsi loadDashboardPassword()
+
+// 1. Tombol Silang (X) di header modal
+document.getElementById("btnCloseIconPassword")?.addEventListener("click", () => {
+  const modal = document.getElementById("modalUbahPassword");
+  modal?.close ? modal.close() : (modal.style.display = "none");
+});
+
+// 2. Fitur Toggle Show/Hide Password
+document.querySelectorAll(".toggle-password").forEach((btn) => {
+  btn.onclick = () => {
+    const inputId = btn.dataset.target;
+    const input = document.getElementById(inputId);
+    if (input) {
+      if (input.type === "password") {
+        input.type = "text";
+        btn.textContent = "🙈";
+      } else {
+        input.type = "password";
+        btn.textContent = "👁️";
+      }
+    }
+  };
+});
+
+  // Gunakan Event Delegation agar aman meskipun elemen dimuat secara dinamis
+  document.addEventListener("click", async (e) => {
+    const btnUbah = e.target.closest("#btnUbahPassword");
+    const modal = document.getElementById("modalUbahPassword");
+    const btnBatal = e.target.closest("#btnBatalPassword");
+    const btnSubmit = e.target.closest("#btnSubmitPassword");
+
+    // 1. Jika tombol "Ubah Password" (pemicu) diklik
+    if (btnUbah && modal) {
+      document.getElementById("currentPassword").value = "";
+      document.getElementById("newPassword").value = "";
+      document.getElementById("confirmPassword").value = "";
+
+      if (typeof modal.showModal === "function") {
+        modal.showModal();
+      } else {
+        modal.style.display = "block";
+      }
+      return;
+    }
+
+    // 2. Jika tombol "Batal" diklik
+    if (btnBatal && modal) {
+      if (typeof modal.close === "function") {
+        modal.close();
+      } else {
+        modal.style.display = "none";
+      }
+      return;
+    }
+
+    // 3. Jika tombol submit di dalam modal diklik
+    if (btnSubmit) {
+      const currentPassword = document.getElementById("currentPassword").value;
+      const newPassword = document.getElementById("newPassword").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        alert("Semua kolom wajib diisi!");
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        alert("Password baru dan konfirmasi password tidak cocok!");
+        return;
+      }
+
+      if (newPassword.length < 6) {
+        alert("Password baru minimal harus 6 karakter.");
+        return;
+      }
+
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData?.user?.email) {
+          alert("Sesi login berakhir. Silakan login kembali.");
+          return;
+        }
+
+        const { error: loginError } = await supabase.auth.signInWithPassword({
+          email: userData.user.email,
+          password: currentPassword
+        });
+
+        if (loginError) {
+          alert("Password lama salah!");
+          return;
+        }
+
+        const { error: updateError } = await supabase.auth.updateUser({
+          password: newPassword
+        });
+
+        if (updateError) throw updateError;
+
+        alert("Password berhasil diubah!");
+        const modalEl = document.getElementById("modalUbahPassword");
+        if (modalEl) modalEl.close ? modalEl.close() : (modalEl.style.display = "none");
+        await supabase.auth.signOut();
+        window.location.reload();
+
+      } catch (err) {
+        console.error(err);
+        alert("Terjadi kesalahan: " + err.message);
+      }
+    }
+  });
+};
+
+
 window.loadDashboardAdminCuti = async function () {
 
 
@@ -9793,7 +9909,7 @@ function ambilTanggalPengajuan(item) {
 
 }
 
-async function loadUlangTahunBulanIni() {
+window.ulangTahunBulanini = async function() {
   const container = document.getElementById("ulangTahunBulanIni");
   if (!container) return;
 

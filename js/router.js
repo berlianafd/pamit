@@ -47,6 +47,14 @@ export function navigate(name) {
         window.loadRekapTK();
       }
 
+      if (typeof window.loadDashboardPassword === "function") {
+        window.loadDashboardPassword();
+      }
+
+      if (typeof window.ulangTahunBulanini === "function") {
+        window.ulangTahunBulanini();
+      }
+
     }
 
     if (name === "presensi") {

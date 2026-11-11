@@ -1,8 +1,46 @@
 export function dashboardPage() {
 
     return `
-  <div id="dashboardAdminCuti" hidden>
 
+    <div id="dashboardPassword" class="dashboard-card">
+
+        <div class="dashboard-info">
+
+            <div class="dashboard-info-icon">
+
+                🔑
+
+            </div>
+
+            <div>
+
+                <strong>Ubah Kata Sandi</strong>
+
+                <p>
+
+                    Dimohon untuk pegawai merubah kata sandi secara berkala untuk menjaga keamanan akun.
+
+                </p>
+
+                <br>
+
+                <button
+                        id="btnUbahPassword"
+                        class="btn-primary">
+
+                        Ubah Kata Sandi
+
+                    </button>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+  <div id="dashboardAdminCuti" hidden>
+<br>
   <div class="dashboard-section">
 
     <div class="dashboard-card">
@@ -102,7 +140,7 @@ export function dashboardPage() {
 </div>
 
 <div id="dashboardAdminPresensi" hidden>
-
+<br>
   <div class="dashboard-section">
 
     <div class="dashboard-card">
@@ -391,6 +429,53 @@ export function dashboardPage() {
     <iframe src="https://scribehow.com/embed/Panduan_Penggunaan_Website__DPD0KXCaTHuCAv01R-aQuA" width="800" height="679" allow="fullscreen" style="aspect-ratio: 1 / 1; border: 0; min-height: 480px"></iframe>
     </div>
 </div>
+
+<!-- Modal Ganti Password -->
+<dialog id="modalUbahPassword" class="modal-dialog">
+  <div class="modal-header">
+    <div class="modal-title-wrap">
+      <span class="modal-icon">🔒</span>
+      <h3>Ubah Password</h3>
+    </div>
+    <button type="button" class="btn-close-icon" id="btnCloseIconPassword">&times;</button>
+  </div>
+
+  <form id="formUbahPassword" class="modal-body" onsubmit="event.preventDefault();">
+    <p class="modal-subtitle">Masukkan password lama Anda untuk memverifikasi identitas, lalu buat password baru.</p>
+
+    <div class="form-group">
+      <label for="currentPassword">Password Lama</label>
+      <div class="input-password-wrapper">
+        <input type="password" id="currentPassword" class="form-input" placeholder="Masukkan password lama" required>
+        <button type="button" class="toggle-password" data-target="currentPassword">👁️</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="newPassword">Password Baru</label>
+      <div class="input-password-wrapper">
+        <input type="password" id="newPassword" class="form-input" placeholder="Minimal 6 karakter" required minlength="6">
+        <button type="button" class="toggle-password" data-target="newPassword">👁️</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Ulangi Password Baru</label>
+      <div class="input-password-wrapper">
+        <input type="password" id="confirmPassword" class="form-input" placeholder="Ulangi password baru" required minlength="6">
+        <button type="button" class="toggle-password" data-target="confirmPassword">👁️</button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" id="btnBatalPassword" class="btn-secondary">Batal</button>
+      <button type="button" id="btnSubmitPassword" class="btn-primary">
+        <span>Ubah Password</span>
+      </button>
+    </div>
+  </form>
+</dialog>
+
   `;
 
 }
