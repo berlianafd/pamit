@@ -428,6 +428,8 @@ async function loadPegawai() {
 
         <td>${p.nip ?? ""}</td>
 
+        <td>${p.id_fingerprint ?? ""}</td>
+
         <td>${p.nama ?? ""}</td>
 
         <td>${p.nohp ?? ""}</td>
@@ -9185,7 +9187,8 @@ async function loadReviewPresensiAbsen() {
       created_at,
 
       pegawai!pengajuan_pegawai_id_fkey(
-        nama
+        nama,
+        id_fingerprint
       ),
 
       presensi_detail(
@@ -9250,6 +9253,7 @@ async function loadReviewPresensiAbsen() {
         <td>${index + 1}</td>
         <td>${item.nomor_pengajuan}</td>
         <td>${namaPegawai}</td>
+        <td>${item.pegawai?.id_fingerprint ?? "-"}</td>
         <td>${waktuFormatted}</td>
         <td>${typeof badgeStatus === "function" ? badgeStatus(item.status) : item.status}</td>
         <td>${item.catatan_admin ?? "-"}</td>

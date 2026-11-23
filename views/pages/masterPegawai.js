@@ -189,6 +189,7 @@ export function masterPegawaiPage(){
       <thead>
         <tr>
           <th>NIP</th>
+          <th>ID Fingerprint</th>
           <th>Nama</th>
           <th>No HP</th>
           <th>Pangkat/Gol</th>

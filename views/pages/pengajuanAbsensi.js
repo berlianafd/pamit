@@ -8,6 +8,7 @@ export function pengajuanAbsensiPage() {
                   <th>No</th>
                   <th>Nomor</th>
                   <th>Pegawai</th>
+                  <th>ID Fingerprint</th>
                   <th>Waktu Presensi</th>
                   <th>Status</th>
                   <th>Catatan Admin</th>
