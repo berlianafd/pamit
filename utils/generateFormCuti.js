@@ -701,12 +701,14 @@ async function getAtasan(pegawai) {
                 supabase
                     .from("pegawai")
                     .select("nama,nip,jabatan")
-                    .eq("unit_kerja", pegawai.unit_kerja) // Mencari berdasarkan unit yang sudah diarahkan
+                    .eq("unit_kerja", pegawai.unit_kerja)
+                    .eq("aktif", true) // Mencari berdasarkan unit yang sudah diarahkan
                     .ilike("jabatan", "%Kepala Sub Bagian%")
                     .single(),
                 supabase
                     .from("pegawai")
                     .select("nama,nip,jabatan")
+                    .eq("aktif", true)
                     .ilike("jabatan", "%Sekretaris%")
                     .single()
             ]);
@@ -726,23 +728,43 @@ async function getAtasan(pegawai) {
 
     else {
 
+        const pltKabidMap = {
+            "Bidang Pengelolaan Informasi Administrasi Kependudukan": {
+                targetUnit: "Bidang Pemanfaatan Data dan Inovasi Pelayanan",
+                jabatanPlt: "Plt. Kepala Bidang Pengelolaan Informasi Administrasi Kependudukan"
+            }
+        };
+
+        const pltConfig = pltKabidMap[pegawai.unit_kerja];
+        const targetUnitKabid = pltConfig ? pltConfig.targetUnit : pegawai.unit_kerja;
+
         const { data: kabid, error: err1 } = await supabase
             .from("pegawai")
             .select("nama,nip,jabatan")
-            .eq("unit_kerja", pegawai.unit_kerja)
+            .eq("aktif", true)
+            .eq("unit_kerja", targetUnitKabid)
             .ilike("jabatan", "%Kepala Bidang%")
-            .single();
+            .maybeSingle();
 
         if (err1) console.error("ERROR KABID:", err1);
 
-        atasan1 = kabid;
+        // Jika unit pegawai masuk daftar Plt., timpa nama jabatan atasan1 dengan jabatan Plt.-nya
+        if (kabid && pltConfig) {
+            atasan1 = {
+                ...kabid,
+                jabatan: pltConfig.jabatanPlt
+            };
+        } else {
+            atasan1 = kabid;
+        }
 
 
         const { data: kadis, error: err2 } = await supabase
             .from("pegawai")
             .select("nama,nip,jabatan")
+            .eq("aktif", true)
             .ilike("jabatan", "%Kepala Dinas%")
-            .single();
+            .maybeSingle();
 
         if (err2) console.error("ERROR KADIS:", err2);
 
