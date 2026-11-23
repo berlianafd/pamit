@@ -19,45 +19,52 @@ export function pengajuanAbsensiPage() {
           </tbody>
       </table>
   </div>
+<!-- Modal Detail Presensi -->
+<dialog id="modalDetailPresensiAbsen" class="modal-dialog modal-presensi">
+  <div class="modal-header">
+    <div class="modal-title-wrap">
+      <span class="modal-icon">🕒</span>
+      <h3>Detail Presensi</h3>
+    </div>
+    <button type="button" id="btnCloseDetailAbsen" class="btn-close-icon" aria-label="Tutup">&times;</button>
+  </div>
 
-  <!-- Modal Detail Presensi -->
-  <dialog id="modalDetailPresensiAbsen" class="modal-detail" style="padding: 20px; border-radius: 8px; border: 1px solid #ccc; max-width: 500px; width: 100%;">
-      <div id="detailAbsenBody"></div>
-      
-      <div class="action-row" style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-          <button
-              id="btnSetujuiAbsen"
-              class="btn btn-success"
-              style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">
-              ✔ Setujui Presensi
-          </button>
+  <div class="modal-body">
+    <div id="detailAbsenBody" class="detail-card"></div>
 
-          <button
-              id="btnTolakAbsen"
-              class="btn btn-danger"
-              style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">
-              ✖ Tolak
-          </button>
-      </div>
-  </dialog>
+    <div class="modal-footer">
+      <button type="button" id="btnTolakAbsen" class="btn-danger">✖ Tolak</button>
+      <button type="button" id="btnSetujuiAbsen" class="btn-success">✔ Setujui Presensi</button>
+    </div>
+  </div>
+</dialog>
 
-  <!-- Modal Alasan Penolakan -->
-  <dialog id="modalTolakAbsen" style="padding: 20px; border-radius: 8px; border: 1px solid #ccc; max-width: 400px; width: 100%;">
+<!-- Modal Alasan Penolakan Presensi -->
+<dialog id="modalTolakAbsen" class="modal-dialog">
+  <div class="modal-header">
+    <div class="modal-title-wrap">
+      <span class="modal-icon">⚠️</span>
       <h3>Alasan Penolakan Presensi</h3>
-      <textarea
-          id="txtAlasanTolakAbsen"
-          rows="4"
-          placeholder="Tuliskan alasan penolakan di sini..."
-          style="width: 100%; margin-top: 10px; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"></textarea>
+    </div>
+    <button type="button" id="btnCloseIconTolakAbsen" class="btn-close-icon" aria-label="Tutup">&times;</button>
+  </div>
 
-      <div class="action-row" style="margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end;">
-          <button id="btnBatalTolakAbsen" class="btn" style="padding: 6px 12px; cursor: pointer;">
-              Batal
-          </button>
-          <button id="btnSimpanTolakAbsen" class="btn btn-danger" style="background: #dc3545; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">
-              Simpan & Tolak
-          </button>
-      </div>
-  </dialog>
+  <form class="modal-body" onsubmit="event.preventDefault();">
+    <div class="form-group">
+      <label for="txtAlasanTolakAbsen">Tuliskan alasan penolakan di sini</label>
+      <textarea
+        id="txtAlasanTolakAbsen"
+        rows="4"
+        class="form-textarea"
+        placeholder="Tuliskan alasan penolakan di sini..."
+      ></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" id="btnBatalTolakAbsen" class="btn-secondary">Batal</button>
+      <button type="button" id="btnSimpanTolakAbsen" class="btn-danger">Simpan &amp; Tolak</button>
+    </div>
+  </form>
+</dialog>
   `;
 }

@@ -38,49 +38,52 @@ export function reviewPresensiDLPage() {
 
   </div>
 
-<dialog id="modalDetailPresensiDL" class="modal-detail">
-
-    <div id="detailDlBody"></div>
-
-    <div class="action-row">
-
-        <button
-            id="btnSetujuiDl"
-            class="btn btn-success">
-            ✔ Sudah Ditandatangani
-        </button>
-
-        <button
-            id="btnTolakDl"
-            class="btn btn-danger">
-            ✖ Ditolak
-        </button>
-
+<!-- Modal Detail Presensi Dinas Luar (DL) -->
+<dialog id="modalDetailPresensiDL" class="modal-dialog modal-presensi">
+  <div class="modal-header">
+    <div class="modal-title-wrap">
+      <span class="modal-icon">🧳</span>
+      <h3>Detail Presensi Dinas Luar</h3>
     </div>
+    <button type="button" id="btnCloseDetailDl" class="btn-close-icon" aria-label="Tutup">&times;</button>
+  </div>
 
+  <div class="modal-body">
+    <div id="detailDlBody" class="detail-card"></div>
+
+    <div class="modal-footer">
+      <button type="button" id="btnTolakDl" class="btn-danger">✖ Ditolak</button>
+      <button type="button" id="btnSetujuiDl" class="btn-success">✔ Sudah Ditandatangani</button>
+    </div>
+  </div>
 </dialog>
 
-<dialog id="modalTolakDl">
+<!-- Modal Alasan Penolakan DL -->
+<dialog id="modalTolakDl" class="modal-dialog">
+  <div class="modal-header">
+    <div class="modal-title-wrap">
+      <span class="modal-icon">⚠️</span>
+      <h3>Alasan Penolakan</h3>
+    </div>
+    <button type="button" id="btnCloseIconTolakDl" class="btn-close-icon" aria-label="Tutup">&times;</button>
+  </div>
 
-    <h3>Alasan Penolakan</h3>
-
-    <textarea
+  <form class="modal-body" onsubmit="event.preventDefault();">
+    <div class="form-group">
+      <label for="txtAlasanTolakDl">Tuliskan alasan penolakan</label>
+      <textarea
         id="txtAlasanTolakDl"
         rows="5"
-        style="width:100%;"></textarea>
-
-    <div class="action-row">
-
-        <button id="btnBatalTolakDl">
-            Batal
-        </button>
-
-        <button id="btnSimpanTolakDl">
-            Simpan
-        </button>
-
+        class="form-textarea"
+        placeholder="Masukkan alasan penolakan..."
+      ></textarea>
     </div>
 
+    <div class="modal-footer">
+      <button type="button" id="btnBatalTolakDl" class="btn-secondary">Batal</button>
+      <button type="button" id="btnSimpanTolakDl" class="btn-primary">Simpan</button>
+    </div>
+  </form>
 </dialog>
   `;
 

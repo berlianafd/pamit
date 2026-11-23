@@ -2819,3 +2819,191 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .btn-primary:active {
   transform: translateY(1px);
 }
+
+/* Perlebar khusus modal detail cuti agar tabel & preview nyaman dibaca */
+.modal-dialog.modal-detail-wide[open] {
+  max-width: 1280px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-dialog.modal-detail-wide:not([open]) {
+  display: none;
+}
+
+.modal-dialog.modal-detail-wide .modal-header {
+  flex-shrink: 0;
+}
+
+.modal-dialog.modal-detail-wide .modal-body {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-dialog.modal-detail-wide[open] {
+  width: 92%;
+  max-width: 1280px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 640px) {
+  .modal-dialog.modal-detail-wide[open] {
+    width: 96%;
+    max-height: 92vh;
+    border-radius: 12px;
+  }
+
+  .modal-dialog.modal-detail-wide .modal-header {
+    padding: 14px 16px;
+  }
+
+  .modal-dialog.modal-detail-wide .modal-body {
+    padding: 14px 16px;
+  }
+
+  .table-detail td:first-child {
+    width: 40%;
+  }
+}
+
+/* Card di dalam modal detail */
+.detail-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+/* Tabel informasi detail */
+.table-detail {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table-detail td {
+  padding: 7px 6px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+
+.table-detail tr:last-child td {
+  border-bottom: none;
+}
+
+.table-detail td:first-child {
+  width: 36%;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.table-detail td:last-child {
+  color: #0f172a;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+/* Tombol-tombol aksi */
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.download-wrapper {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-success,
+.btn-danger,
+.btn-download {
+  padding: 9px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-success {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.btn-success:hover {
+  background: #15803d;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+.btn-download {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.btn-download:hover {
+  background: #dbeafe;
+}
+
+/* Textarea & File Input pada modal kecil */
+.form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  color: #1e293b;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.form-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.form-file {
+  width: 100%;
+  font-size: 13px;
+  color: #334155;
+  padding: 8px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+#card-preview-ttd {
+  margin-top: 12px;
+}
+
+/* Sedikit lebih lebar untuk detail presensi (misal ada foto/lokasi/jam masuk-pulang) */
+.modal-dialog.modal-presensi {
+  max-width: 560px;
+}

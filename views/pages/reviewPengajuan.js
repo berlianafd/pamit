@@ -40,184 +40,118 @@ export function reviewPengajuanPage() {
 
   </div>
 
-  <!-- Modal -->
-
- <dialog id="modalDetailPengajuan" class="modal-detail">
-
-  <div class="detail-container">
-
- <div class="modal-header">
-
-    <h2>Detail Pengajuan Cuti</h2>
-
-    <button
-        id="btnCloseModal"
-        class="btn-close-modal">
-
-        <span class="material-symbols-outlined">
-            close
-        </span>
-
+ <!-- Modal Detail Pengajuan Cuti -->
+<dialog id="modalDetailPengajuan" class="modal-dialog modal-detail-wide">
+  <div class="modal-header">
+    <div class="modal-title-wrap">
+      <span class="modal-icon">📄</span>
+      <h3>Detail Pengajuan Cuti</h3>
+    </div>
+    <button type="button" id="btnCloseModal" class="btn-close-icon" aria-label="Tutup">
+      <span class="material-symbols-outlined">close</span>
     </button>
+  </div>
 
-</div>
-  
+  <div class="modal-body">
     <div class="detail-card">
-
-        <div class="card-title">
-            📋 Informasi Pengajuan
-        </div>
-
-        <table class="table-detail">
-
-            <tr>
-                <td>Nomor Pengajuan</td>
-                <td id="detailNomor"></td>
-            </tr>
-
-            <tr>
-                <td>Nama Pegawai</td>
-                <td id="detailNama"></td>
-            </tr>
-
-            <tr>
-                <td>Jenis Pengajuan</td>
-                <td id="detailJenis"></td>
-            </tr>
-
-            <tr>
-                <td>Status</td>
-                <td id="detailStatus"></td>
-            </tr>
-
-            <tr>
-                <td>Catatan Admin</td>
-                <td id="detailCatatan"></td>
-            </tr>
-
-        </table>
-
+      <div class="card-title">📋 Informasi Pengajuan</div>
+      <table class="table-detail">
+        <tr>
+          <td>Nomor Pengajuan</td>
+          <td id="detailNomor"></td>
+        </tr>
+        <tr>
+          <td>Nama Pegawai</td>
+          <td id="detailNama"></td>
+        </tr>
+        <tr>
+          <td>Jenis Pengajuan</td>
+          <td id="detailJenis"></td>
+        </tr>
+        <tr>
+          <td>Status</td>
+          <td id="detailStatus"></td>
+        </tr>
+        <tr>
+          <td>Catatan Admin</td>
+          <td id="detailCatatan"></td>
+        </tr>
+      </table>
     </div>
 
-
-    <div
-        class="detail-card"
-        id="cardDataCuti">
-
-    </div>
-
+    <div class="detail-card" id="cardDataCuti"></div>
 
     <div class="detail-card">
-
-        <div class="card-title">
-
-            📎 Dokumen Pendukung
-
-        </div>
-
-        <div id="previewDokumen"></div>
-
+      <div class="card-title">📎 Dokumen Pendukung</div>
+      <div id="previewDokumen"></div>
     </div>
 
-
     <div class="detail-card">
-               <div class="action-row">
+      <div class="action-row">
+        <button type="button" id="btnDisetujui" class="btn-success">✔ Disetujui</button>
+        <button type="button" id="btnTolak" class="btn-danger">✖ Ditolak</button>
+      </div>
 
-            <button
-                id="btnDisetujui"
-                class="btn-success">
+      <div class="download-wrapper">
+        <button type="button" id="btnDownloadForm" class="btn-download">⬇ Download Form Cuti</button>
+      </div>
 
-                ✔ Disetujui
-
-            </button>
-
-            <button
-                id="btnTolak"
-                class="btn-danger">
-
-                ✖ Ditolak
-
-            </button>
-
-        </div>
-
-          <div class="download-wrapper">
-
-        <button
-            id="btnDownloadForm"
-            class="btn-download">
-
-            ⬇ Download Form Cuti
-
+      <div class="download-wrapper">
+        <button type="button" id="btnSudahDitandatangani" class="btn-success">
+          Tandai Sudah Ditandatangani
         </button>
-
-    </div>
-
-    <div class="download-wrapper">
-        <button
-            id="btnSudahDitandatangani"
-            class="btn-success">
-            Tandai Sudah Ditandatangani
-        </button>
-    </div>
+      </div>
 
       <div class="detail-card" id="card-preview-ttd">
-
-        <div class="card-title">
-
-            📎 Dokumen Cuti Tertandatangani
-
-        </div>
-
+        <div class="card-title">📎 Dokumen Cuti Tertandatangani</div>
         <div id="previewFormTTD" style="display:none;"></div>
-
+      </div>
     </div>
-    
-
-    </div>
-
-</div>
-
+  </div>
 </dialog>
 
-<dialog id="modalTolak">
+<!-- Modal Alasan Penolakan -->
+<dialog id="modalTolak" class="modal-dialog">
+  <div class="modal-header">
+    <div class="modal-title-wrap">
+      <span class="modal-icon">⚠️</span>
+      <h3>Alasan Penolakan</h3>
+    </div>
+  </div>
 
-    <h3>Alasan Penolakan</h3>
-
-    <textarea
-        id="txtAlasanTolak"
-        rows="5"
-        style="width:100%;"></textarea>
-
-    <div class="action-row">
-
-        <button id="btnBatalTolak">
-            Batal
-        </button>
-
-        <button id="btnSimpanTolak">
-            Simpan
-        </button>
-
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="txtAlasanTolak">Tuliskan alasan penolakan pengajuan</label>
+      <textarea id="txtAlasanTolak" rows="5" class="form-textarea" placeholder="Masukkan alasan penolakan..."></textarea>
     </div>
 
+    <div class="modal-footer">
+      <button type="button" id="btnBatalTolak" class="btn-secondary">Batal</button>
+      <button type="button" id="btnSimpanTolak" class="btn-primary">Simpan</button>
+    </div>
+  </div>
 </dialog>
 
-<dialog id="modalUploadTTD">
+<!-- Modal Upload Form Cuti Bertanda Tangan -->
+<dialog id="modalUploadTTD" class="modal-dialog">
+  <div class="modal-header">
+    <div class="modal-title-wrap">
+      <span class="modal-icon">✍️</span>
+      <h3>Upload Form Cuti yang Sudah Ditandatangani</h3>
+    </div>
+  </div>
 
-    <h3>Upload Form Cuti yang Sudah Ditandatangani</h3>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="fileTTD">Pilih berkas PDF</label>
+      <input type="file" id="fileTTD" accept=".pdf" class="form-file">
+    </div>
 
-    <input
-        type="file"
-        id="fileTTD"
-        accept=".pdf">
-
-    <button id="btnUploadTTD">
-
-        Upload
-
-    </button>
-
+    <div class="modal-footer">
+      <button type="button" id="btnBatalUploadTTD" class="btn-secondary">Batal</button>
+      <button type="button" id="btnUploadTTD" class="btn-primary">Upload</button>
+    </div>
+  </div>
 </dialog>
   `;
 
