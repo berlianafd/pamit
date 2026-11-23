@@ -692,7 +692,7 @@ async function getAtasan(pegawai) {
             // atasan2 = sekretaris;
 
             // Jika unit_kerja adalah umpeg, arahkan pencarian kasubbag ke unit keu
-            const targetUnitKasubbag = pegawai.unit_kerja === "Sub Bagian Umum dan Kepegawaian" ? "Sub Bagian Keuangan" : pegawai.unit_kerja;
+            // const targetUnitKasubbag = pegawai.unit_kerja === "Sub Bagian Umum dan Kepegawaian" ? "Sub Bagian Keuangan" : pegawai.unit_kerja;
 
             const [
                 { data: kasubbag, error: err1 },
@@ -701,7 +701,7 @@ async function getAtasan(pegawai) {
                 supabase
                     .from("pegawai")
                     .select("nama,nip,jabatan")
-                    .eq("unit_kerja", targetUnitKasubbag) // Mencari berdasarkan unit yang sudah diarahkan
+                    .eq("unit_kerja", pegawai.unit_kerja) // Mencari berdasarkan unit yang sudah diarahkan
                     .ilike("jabatan", "%Kepala Sub Bagian%")
                     .single(),
                 supabase
