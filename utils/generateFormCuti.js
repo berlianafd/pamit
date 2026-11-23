@@ -588,212 +588,142 @@ function terbilang(n) {
     );
 
 }
-async function getAtasan(pegawai) {
 
-    let atasan1 = null;
-    let atasan2 = null;
+const SEKDA_FIXED = {
+    nama: "Dr. Ir. BUDIAR, M.Si",
+    nip: "197011191996031004",
+    jabatan: "Sekretaris Daerah"
+};
 
-    // =====================================================
-    // KABID
-    // =====================================================
+const UNIT_SEKRETARIAT = [
+    "Sub Bagian Umum dan Kepegawaian",
+    "Sub Bagian Keuangan",
+    "Sekretariat"
+];
 
-    if (
-        pegawai.jabatan &&
-        (
-            pegawai.jabatan.toLowerCase().includes("kepala bidang") ||
-            pegawai.jabatan.toLowerCase().includes("sekretaris")
-        )
-    ) {
+// Isi NIP pegawai staf bidang PDIP yang menjadi Plt. Kasubbag Umpeg
+// (lebih aman dibanding hanya mengandalkan teks jabatan)
+const PLT_KASUBBAG_UMPEG = {
+    nip: "197408132000031005",
+    unitAsal: "Sub Bagian Umum dan Kepegawaian",
+    jabatanPlt: "Plt. Kepala Sub Bagian Umum dan Kepegawaian"
+};
 
-        // ================================
-        // ATASAN 1 = KEPALA DINAS
-        // ================================
-
-        const { data: kadis, error: err1 } = await supabase
-            .from("pegawai")
-            .select("nama,nip,jabatan")
-            .ilike("jabatan", "%Kepala Dinas%")
-            .single();
-
-        if (err1) {
-            console.error("ERROR KADIS:", err1);
-        }
-
-        atasan1 = kadis;
-
-
-        // ================================
-        // ATASAN 2 = BUDIAR (FIXED)
-        // ================================
-
-        atasan2 = {
-            nama: "Dr. Ir. BUDIAR, M.Si",
-            nip: "197011191996031004",
-            jabatan: "Sekretaris Daerah"
-        };
-
+const PLT_KABID_MAP = {
+    "Bidang Pengelolaan Informasi Administrasi Kependudukan": {
+        targetUnit: "Bidang Pemanfaatan Data dan Inovasi Pelayanan",
+        jabatanPlt: "Plt. Kepala Bidang Pengelolaan Informasi Administrasi Kependudukan"
     }
+};
 
-    // =====================================================
-    // SEKRETARIAT
-    // =====================================================
+async function cariPejabat({ jabatanPattern, unitKerja = null, nip = null, labelError }) {
+    let query = supabase
+        .from("pegawai")
+        .select("nama,nip,jabatan,unit_kerja")
+        .eq("aktif", true);
 
-    else if (
-        pegawai.unit_kerja == "Sub Bagian Umum dan Kepegawaian" ||
-        pegawai.unit_kerja == "Sub Bagian Keuangan" ||
-        pegawai.unit_kerja == "Sekretariat"
-    ) {
-        if (pegawai.jabatan && pegawai.jabatan.toLowerCase().includes("kepala sub bagian")) {
-
-            const { data: sekretaris, error: err1 } = await supabase
-                .from("pegawai")
-                .select("nama,nip,jabatan")
-                .ilike("jabatan", "%Sekretaris%")
-                .single();
-
-            if (err1) console.error("ERROR SEKRETARIS:", err1);
-
-            atasan1 = sekretaris;
-
-            const { data: kadis, error: err2 } = await supabase
-                .from("pegawai")
-                .select("nama,nip,jabatan")
-                .ilike("jabatan", "%Kepala Dinas%")
-                .single();
-
-            if (err2) {
-                console.error("ERROR KADIS:", err2);
-            }
-
-            atasan2 = kadis;
-        } else {
-
-            // const { data: kasubbag, error: err1 } = await supabase
-            //     .from("pegawai")
-            //     .select("nama,nip,jabatan")
-            //     .eq("unit_kerja", pegawai.unit_kerja)
-            //     // .ilike("jabatan", "%Kepala Sub Bagian%")
-            //     .ilike("jabatan", "Kepala Sub Bagian Keuangan")
-            //     .single();
-
-            // if (err1) console.error("ERROR KASUBBAG:", err1);
-
-            // atasan1 = kasubbag;
-
-
-            // const { data: sekretaris, error: err2 } = await supabase
-            //     .from("pegawai")
-            //     .select("nama,nip,jabatan")
-            //     .ilike("jabatan", "%Sekretaris%")
-            //     .single();
-
-            // if (err2) console.error("ERROR SEKRETARIS:", err2);
-
-            // atasan2 = sekretaris;
-
-            // Jika unit_kerja adalah umpeg, arahkan pencarian kasubbag ke unit keu
-            // const targetUnitKasubbag = pegawai.unit_kerja === "Sub Bagian Umum dan Kepegawaian" ? "Sub Bagian Keuangan" : pegawai.unit_kerja;
-
-            const [
-                { data: kasubbag, error: err1 },
-                { data: sekretaris, error: err2 }
-            ] = await Promise.all([
-                supabase
-                    .from("pegawai")
-                    .select("nama,nip,jabatan")
-                    .eq("unit_kerja", pegawai.unit_kerja)
-                    .eq("aktif", true) // Mencari berdasarkan unit yang sudah diarahkan
-                    .ilike("jabatan", "%Kepala Sub Bagian%")
-                    .single(),
-                supabase
-                    .from("pegawai")
-                    .select("nama,nip,jabatan")
-                    .eq("aktif", true)
-                    .ilike("jabatan", "%Sekretaris%")
-                    .single()
-            ]);
-
-            if (err1) console.error("ERROR KASUBBAG:", err1);
-            if (err2) console.error("ERROR SEKRETARIS:", err2);
-
-            atasan1 = kasubbag;
-            atasan2 = sekretaris;
+    if (nip) {
+        query = query.eq("nip", nip);
+    } else {
+        query = query.ilike("jabatan", jabatanPattern);
+        if (unitKerja) {
+            query = query.eq("unit_kerja", unitKerja);
         }
     }
 
+    const { data, error } = await query.maybeSingle();
 
-    // =====================================================
-    // STAF BIDANG
-    // =====================================================
-
-    else {
-
-        const pltKabidMap = {
-            "Bidang Pengelolaan Informasi Administrasi Kependudukan": {
-                targetUnit: "Bidang Pemanfaatan Data dan Inovasi Pelayanan",
-                jabatanPlt: "Plt. Kepala Bidang Pengelolaan Informasi Administrasi Kependudukan"
-            }
-        };
-
-        const pltConfig = pltKabidMap[pegawai.unit_kerja];
-        const targetUnitKabid = pltConfig ? pltConfig.targetUnit : pegawai.unit_kerja;
-
-        const { data: kabid, error: err1 } = await supabase
-            .from("pegawai")
-            .select("nama,nip,jabatan")
-            .eq("aktif", true)
-            .eq("unit_kerja", targetUnitKabid)
-            .ilike("jabatan", "%Kepala Bidang%")
-            .maybeSingle();
-
-        if (err1) console.error("ERROR KABID:", err1);
-
-        // Jika unit pegawai masuk daftar Plt., timpa nama jabatan atasan1 dengan jabatan Plt.-nya
-        if (kabid && pltConfig) {
-            atasan1 = {
-                ...kabid,
-                jabatan: pltConfig.jabatanPlt
-            };
-        } else {
-            atasan1 = kabid;
-        }
-
-
-        const { data: kadis, error: err2 } = await supabase
-            .from("pegawai")
-            .select("nama,nip,jabatan")
-            .eq("aktif", true)
-            .ilike("jabatan", "%Kepala Dinas%")
-            .maybeSingle();
-
-        if (err2) console.error("ERROR KADIS:", err2);
-
-        atasan2 = kadis;
-
+    if (error) {
+        console.error(`ERROR ${labelError}:`, error);
     }
 
+    return data ?? null;
+}
 
+function formatHasil(atasan1, atasan2) {
     return {
-
-        atasan1:
-            atasan1?.nama ?? "",
-
-        nip_atasan1:
-            atasan1?.nip ?? "",
-
-        jabatan_atasan1:
-            atasan1?.jabatan ?? "",
-
-
-        atasan2:
-            atasan2?.nama ?? "",
-
-        nip_atasan2:
-            atasan2?.nip ?? "",
-
-        jabatan_atasan2:
-            atasan2?.jabatan ?? ""
-
+        atasan1: atasan1?.nama ?? "",
+        nip_atasan1: atasan1?.nip ?? "",
+        jabatan_atasan1: atasan1?.jabatan ?? "",
+        atasan2: atasan2?.nama ?? "",
+        nip_atasan2: atasan2?.nip ?? "",
+        jabatan_atasan2: atasan2?.jabatan ?? ""
     };
+}
 
+async function getAtasan(pegawai) {
+    const jabatanLower = (pegawai?.jabatan || "").toLowerCase();
+    const unitKerja = pegawai?.unit_kerja || "";
+    const isPltKasubbagUmpeg = Boolean(pegawai?.nip && pegawai.nip === PLT_KASUBBAG_UMPEG.nip);
+
+    // 1. Kabid, Sekretaris, atau Plt. Kasubbag Umpeg sendiri
+    //    -> Atasan 1: Sekretaris (jika Plt. Kasubbag Umpeg) atau Kepala Dinas
+    if (isPltKasubbagUmpeg) {
+        const [sekretaris, kadis] = await Promise.all([
+            cariPejabat({ jabatanPattern: "%Sekretaris%", labelError: "SEKRETARIS" }),
+            cariPejabat({ jabatanPattern: "%Kepala Dinas%", labelError: "KADIS" })
+        ]);
+        return formatHasil(sekretaris, kadis);
+    }
+
+    if (jabatanLower.includes("kepala bidang") || jabatanLower.includes("sekretaris")) {
+        const kadis = await cariPejabat({
+            jabatanPattern: "%Kepala Dinas%",
+            labelError: "KADIS"
+        });
+        return formatHasil(kadis, SEKDA_FIXED);
+    }
+
+    // 2. Unit Sekretariat & Sub Bagian
+    if (UNIT_SEKRETARIAT.includes(unitKerja)) {
+        if (jabatanLower.includes("kepala sub bagian")) {
+            const [sekretaris, kadis] = await Promise.all([
+                cariPejabat({ jabatanPattern: "%Sekretaris%", labelError: "SEKRETARIS" }),
+                cariPejabat({ jabatanPattern: "%Kepala Dinas%", labelError: "KADIS" })
+            ]);
+            return formatHasil(sekretaris, kadis);
+        }
+
+        const [kasubbag, sekretaris] = await Promise.all([
+            unitKerja === PLT_KASUBBAG_UMPEG.unitAsal
+                ? cariPejabat({ nip: PLT_KASUBBAG_UMPEG.nip, labelError: "PLT_KASUBBAG_UMPEG" })
+                : cariPejabat({
+                    jabatanPattern: "%Kepala Sub Bagian%",
+                    unitKerja,
+                    labelError: "KASUBBAG"
+                }),
+            cariPejabat({
+                jabatanPattern: "%Sekretaris%",
+                labelError: "SEKRETARIS"
+            })
+        ]);
+
+        const atasan1 = kasubbag && unitKerja === PLT_KASUBBAG_UMPEG.unitAsal
+            ? { ...kasubbag, jabatan: PLT_KASUBBAG_UMPEG.jabatanPlt }
+            : kasubbag;
+
+        return formatHasil(atasan1, sekretaris);
+    }
+
+    // 3. Staf Bidang (termasuk staf bidang PDIP yang merangkap Plt. Kasubbag Umpeg)
+    const pltConfig = PLT_KABID_MAP[unitKerja];
+    const targetUnit = pltConfig ? pltConfig.targetUnit : unitKerja;
+
+    const [kabid, kadis] = await Promise.all([
+        cariPejabat({
+            jabatanPattern: "%Kepala Bidang%",
+            unitKerja: targetUnit,
+            labelError: "KABID"
+        }),
+        cariPejabat({
+            jabatanPattern: "%Kepala Dinas%",
+            labelError: "KADIS"
+        })
+    ]);
+
+    const atasan1 = kabid && pltConfig
+        ? { ...kabid, jabatan: pltConfig.jabatanPlt }
+        : kabid;
+
+    return formatHasil(atasan1, kadis);
 }
