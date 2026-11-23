@@ -6350,99 +6350,146 @@ function initSidebar() {
 
 }
 
-async function initReviewPengajuan() {
+async function initSearchReviewPengajuan() {
+  const inputSearch = document.getElementById("searchNamaPengajuan");
+  const btnClear = document.getElementById("btnResetSearchNama");
+  const tbody = document.getElementById("reviewPengajuanBody");
 
+  if (!inputSearch || !tbody) return;
+
+  function applyFilter() {
+    const keyword = inputSearch.value.trim().toLowerCase();
+    if (btnClear) {
+      btnClear.style.display = keyword ? "inline-flex" : "none";
+    }
+
+    // Ambil semua baris data (kecuali baris pesan kosong hasil search)
+    const rows = Array.from(tbody.querySelectorAll("tr:not(.empty-search-row)"));
+    let visibleCount = 0;
+
+    rows.forEach((row) => {
+      // Kolom ke-2 (index 1) adalah kolom "Pegawai"
+      const namaPegawai = (row.cells[1]?.textContent || "").toLowerCase();
+      const isMatch = !keyword || namaPegawai.includes(keyword);
+
+      row.style.display = isMatch ? "" : "none";
+      if (isMatch) visibleCount++;
+    });
+
+    // Kelola baris pesan jika tidak ada nama yang cocok
+    let emptyRow = tbody.querySelector("tr.empty-search-row");
+    if (rows.length > 0 && visibleCount === 0) {
+      if (!emptyRow) {
+        emptyRow = document.createElement("tr");
+        emptyRow.className = "empty-search-row";
+        emptyRow.innerHTML = `<td colspan="7">Tidak ada pengajuan atas nama "<strong>${escapeHtml(inputSearch.value.trim())}</strong>".</td>`;
+        tbody.appendChild(emptyRow);
+      } else {
+        emptyRow.innerHTML = `<td colspan="7">Tidak ada pengajuan atas nama "<strong>${escapeHtml(inputSearch.value.trim())}</strong>".</td>`;
+        emptyRow.style.display = "";
+      }
+    } else if (emptyRow) {
+      emptyRow.style.display = "none";
+    }
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, (m) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    }[m]));
+  }
+
+  inputSearch.addEventListener("input", applyFilter);
+
+  btnClear?.addEventListener("click", () => {
+    inputSearch.value = "";
+    applyFilter();
+    inputSearch.focus();
+  });
+
+  // Kembalikan fungsi agar bisa dipanggil setelah render ulang data tabel
+  return applyFilter;
+}
+
+async function initReviewPengajuan() {
   await loadReviewPengajuan();
 
-  document
-    .getElementById("reviewPengajuanBody")
-    .onclick = async (e) => {
+  const applySearchFilter = await initSearchReviewPengajuan();
 
-      // ================================ // TOMBOL REVIEW // ================================ 
+  const tbody = document.getElementById("reviewPengajuanBody");
+  if (tbody) {
+    tbody.onclick = async (e) => {
+      // ================================ // TOMBOL REVIEW // ================================
       const btnReview = e.target.closest(".btn-detail-review");
       if (btnReview) {
-        await bukaDetailPengajuan(
-          Number(btnReview.dataset.id)
-        );
+        await bukaDetailPengajuan(Number(btnReview.dataset.id));
         return;
       }
 
-      // ================================ // TOMBOL HAPUS // ================================ 
+      // ================================ // TOMBOL HAPUS // ================================
       const btnHapus = e.target.closest(".btn-hapus-pengajuan");
       if (btnHapus) {
-        await hapusPengajuan(
-          Number(btnHapus.dataset.id)
-        );
+        await hapusPengajuan(Number(btnHapus.dataset.id));
+        applySearchFilter?.();
         return;
       }
     };
+  }
 
-  document
-    .getElementById("btnDisetujui")
-    .onclick = async () => {
-
-      await approvePengajuan(
-        window.currentPengajuanId
-      );
-
+  // Tombol tutup modal detail (ikon X)
+  const btnCloseModal = document.getElementById("btnCloseModal");
+  if (btnCloseModal) {
+    btnCloseModal.onclick = () => {
+      document.getElementById("modalDetailPengajuan")?.close();
     };
+  }
 
-  document
-    .getElementById("btnTolak")
-    .onclick = () => {
-
-      document
-        .getElementById("modalTolak")
-        .showModal();
-
+  const btnDisetujui = document.getElementById("btnDisetujui");
+  if (btnDisetujui) {
+    btnDisetujui.onclick = async () => {
+      await approvePengajuan(window.currentPengajuanId);
+      applySearchFilter?.();
     };
+  }
 
-  document
+  const modalTolak = document.getElementById("modalTolak");
+  const txtAlasanTolak = document.getElementById("txtAlasanTolak");
 
-    .getElementById("btnBatalTolak")
-
-    .onclick = () => {
-
-      document
-
-        .getElementById("modalTolak")
-
-        .close();
-
+  const btnTolak = document.getElementById("btnTolak");
+  if (btnTolak) {
+    btnTolak.onclick = () => {
+      if (txtAlasanTolak) txtAlasanTolak.value = "";
+      modalTolak?.showModal();
     };
+  }
 
-  document
+  const btnBatalTolak = document.getElementById("btnBatalTolak");
+  if (btnBatalTolak) {
+    btnBatalTolak.onclick = () => {
+      modalTolak?.close();
+    };
+  }
 
-    .getElementById("btnSimpanTolak")
-
-    .onclick = async () => {
-
-      const alasan =
-
-        document
-
-          .getElementById("txtAlasanTolak")
-
-          .value.trim();
-
+  const btnSimpanTolak = document.getElementById("btnSimpanTolak");
+  if (btnSimpanTolak) {
+    btnSimpanTolak.onclick = async () => {
+      const alasan = txtAlasanTolak?.value.trim() || "";
       if (!alasan) {
-
         alert("Alasan penolakan wajib diisi.");
-
+        txtAlasanTolak?.focus();
         return;
-
       }
 
-      await tolakPengajuan(
-
-        window.currentPengajuanId,
-
-        alasan
-
-      );
-
+      await tolakPengajuan(window.currentPengajuanId, alasan);
+      modalTolak?.close();
+      if (txtAlasanTolak) txtAlasanTolak.value = "";
+      applySearchFilter?.();
     };
-
+  }
 }
 
 async function loadReviewPengajuan() {
@@ -10121,3 +10168,4 @@ async function loadUlangTahunBulanIni() {
     loadUlangTahunBulanIni();    loadUlangTahunBulanIni();
   };
 }
+

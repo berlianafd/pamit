@@ -5,8 +5,28 @@ export function reviewPengajuanPage() {
     return `
 
   <div class="page-card">
+    <div class="page-header-flex">
+      <h2>Review Pengajuan</h2>
 
-    <h2>Review Pengajuan</h2>
+      <div class="search-box-wrapper">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          id="searchNamaPengajuan"
+          class="search-input"
+          placeholder="Cari nama pegawai..."
+          autocomplete="off"
+        />
+        <button
+          type="button"
+          id="btnResetSearchNama"
+          class="btn-clear-search"
+          title="Hapus pencarian"
+          aria-label="Hapus pencarian"
+          style="display: none;"
+        >&times;</button>
+      </div>
+    </div>
 
     <table class="table">
 
