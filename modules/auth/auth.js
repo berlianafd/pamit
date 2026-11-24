@@ -5,7 +5,7 @@ import {
   SUPABASE_URL,
   SUPABASE_KEY
 }
-from "./config.js";
+from "../config/constants.js";
 
 export const supabase =
   createClient(

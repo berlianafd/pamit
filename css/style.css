@@ -2841,6 +2841,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  flex: 1 1 auto;
+  min-height: 0; /* penting di flex container agar overflow-y bekerja */
+  -webkit-overflow-scrolling: touch; /* scroll halus di HP */
 }
 
 .modal-dialog.modal-detail-wide[open] {
@@ -3005,7 +3008,11 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
 /* Sedikit lebih lebar untuk detail presensi (misal ada foto/lokasi/jam masuk-pulang) */
 .modal-dialog.modal-presensi {
-  max-width: 560px;
+  max-width: 960px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0; /* penting di flex container agar overflow-y bekerja */
+  -webkit-overflow-scrolling: touch; /* scroll halus di HP */
 }
 
 .page-header-flex {
@@ -3078,4 +3085,286 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   padding: 20px;
   color: #64748b;
   font-size: 14px;
+}
+
+.saldo-modal {
+  width: min(500px, calc(100vw - 24px));
+  max-height: 90dvh;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+}
+
+.saldo-modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.saldo-modal::backdrop {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.saldo-modal .modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.saldo-modal .modal-header h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.saldo-modal .modal-subtitle {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.saldo-modal .modal-close {
+  border: none;
+  background: #f1f5f9;
+  color: #475569;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.saldo-modal .modal-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.saldo-modal .modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.saldo-info-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  font-size: 12.5px;
+  color: #334155;
+}
+
+.saldo-info-box ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  line-height: 1.55;
+}
+
+.saldo-modal .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.saldo-modal .form-group label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.saldo-modal .form-control {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.saldo-modal .form-control:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.saldo-modal .form-control:disabled {
+  background: #f1f5f9;
+  color: #475569;
+  cursor: not-allowed;
+}
+
+.saldo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.saldo-modal .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+  flex-shrink: 0;
+}
+
+.saldo-modal .btn-primary,
+.saldo-modal .btn-secondary {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.saldo-modal .btn-primary {
+  border: none;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.saldo-modal .btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.saldo-modal .btn-secondary {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+}
+
+.saldo-modal .btn-secondary:hover {
+  background: #f1f5f9;
+}
+
+@media (max-width: 520px) {
+  .saldo-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(360px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.toast-item {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  border-left: 5px solid transparent;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.35;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast-item.is-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Success (Hijau pastel) */
+.toast-item.is-success {
+  background: #c8f2ce;
+  border-left-color: #28a745;
+  color: #1e7e34;
+}
+
+/* Error / Danger (Merah pastel) */
+.toast-item.is-error {
+  background: #fad7db;
+  border-left-color: #f43f5e;
+  color: #e11d48;
+}
+
+/* Info (Biru pastel) */
+.toast-item.is-info {
+  background: #cce9ff;
+  border-left-color: #2196f3;
+  color: #1976d2;
+}
+
+.toast-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.toast-item.is-success .toast-icon {
+  background: #28a745;
+}
+
+.toast-item.is-error .toast-icon {
+  background: #f43f5e;
+}
+
+.toast-item.is-info .toast-icon {
+  background: #2196f3;
+}
+
+.toast-text {
+  flex: 1 1 auto;
+  word-break: break-word;
+}
+
+.toast-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: currentColor;
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0.75;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  opacity: 1;
 }

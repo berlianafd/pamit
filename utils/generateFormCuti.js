@@ -1,4 +1,4 @@
-import { supabase } from "../js/supabase.js";
+import { supabase } from "/modules/auth/auth.js";
 
 const TEMPLATE_CUTI = "assets/template_cuti.docx";
 
