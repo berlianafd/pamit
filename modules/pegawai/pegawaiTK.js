@@ -1,4 +1,4 @@
-import { formatTanggal, cekKeteranganTK } from "/utils/helper.js";
+import { formatTanggal, cekKeteranganTK, showToast} from "/utils/helper.js";
 
 let daftarPegawaiTK = [];
 let isSavingTK = false;
@@ -23,7 +23,7 @@ function renderDaftarPegawaiTK() {
 
 function tambahPegawaiTK(pegawai) {
   if (daftarPegawaiTK.some((x) => x.id === pegawai.id)) {
-    alert("Pegawai sudah dipilih.");
+    showToast("Pegawai sudah dipilih.", "warning");
     return;
   }
 
@@ -90,12 +90,12 @@ async function simpanTK() {
 
   const tanggal = document.getElementById("tanggalTK")?.value;
   if (!tanggal) {
-    alert("Pilih tanggal terlebih dahulu.");
+    showToast("Pilih tanggal terlebih dahulu.", "error");
     return;
   }
 
   if (daftarPegawaiTK.length === 0) {
-    alert("Pilih minimal 1 pegawai.");
+    showToast("Pilih minimal 1 pegawai.", "warning");
     return;
   }
 
@@ -120,14 +120,14 @@ async function simpanTK() {
 
     if (error) {
       if (error.code === "23505") {
-        alert("Ada pegawai yang sudah tercatat TK pada tanggal tersebut.");
+        showToast("Ada pegawai yang sudah tercatat TK pada tanggal tersebut.", "error");
         return;
       }
-      alert(error.message);
+      showToast("Gagal menyimpan data TK.", "error");
       return;
     }
 
-    alert("Data TK berhasil disimpan.");
+    showToast("Data Pegawai Tanpa Keterangan berhasil disimpan.", "success");
 
     daftarPegawaiTK = [];
     renderDaftarPegawaiTK();
@@ -256,7 +256,7 @@ export async function initPresensiTK() {
 
       if (error) {
         console.error(error);
-        alert(error.message);
+        showToast("Gagal menghapus data TK.", "error");
         return;
       }
 

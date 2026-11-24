@@ -1,4 +1,4 @@
-import { badgeStatus } from "/utils/helper.js";
+import { badgeStatus, showToast } from "/utils/helper.js";
 
 const JENIS_CUTI_LABEL = {
   CUTI_TAHUNAN: "Cuti Tahunan",
@@ -95,7 +95,7 @@ export async function initReviewPresensiCuti() {
       .eq("id", btn.dataset.id);
 
     if (error) {
-      alert(error.message);
+      showToast("Gagal memperbarui status pengajuan.", "error");
       return;
     }
 
@@ -180,7 +180,7 @@ async function lihatSuratTTD(pengajuanId) {
     .single();
 
   if (error || !data?.file_url) {
-    alert("Dokumen tidak ditemukan.");
+    showToast("Dokumen tidak ditemukan.", "error");
     return;
   }
 
@@ -189,7 +189,7 @@ async function lihatSuratTTD(pengajuanId) {
     .createSignedUrl(data.file_url, 600);
 
   if (signedError || !signed?.signedUrl) {
-    alert("Gagal membuka dokumen.");
+    showToast("Gagal membuka dokumen.", "error");
     return;
   }
 

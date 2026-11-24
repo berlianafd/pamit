@@ -2,7 +2,8 @@ import {
   updateTKBerdasarkanRentangTanggal,
   updateTKKarenaCutiTahunan,
   badgeStatus,
-  updateStatusPengajuan
+  updateStatusPengajuan,
+  showToast
 } from "/utils/helper.js";
 import { KETERANGAN_TK } from "../config/constants.js";
 import { generateFormCuti } from "/utils/generateFormCuti.js";
@@ -108,7 +109,7 @@ export async function initReviewPengajuan() {
     btnSimpanTolak.onclick = async () => {
       const alasan = txtAlasanTolak?.value.trim() || "";
       if (!alasan) {
-        alert("Alasan penolakan wajib diisi.");
+        showToast("Alasan penolakan wajib diisi.", "warning");
         txtAlasanTolak?.focus();
         return;
       }
@@ -126,7 +127,7 @@ export async function initReviewPengajuan() {
         await Promise.all([loadReviewPengajuan(), isiModalDetail(id)]);
       } catch (err) {
         console.error(err);
-        alert("Gagal membuat dokumen.");
+        showToast("Gagal membuat dokumen.", "error");
       }
     };
   }
@@ -325,11 +326,11 @@ async function hapusPengajuan(id) {
 
   if (error) {
     console.error(error);
-    alert("Gagal menghapus pengajuan.");
+    showToast("Gagal menghapus pengajuan.", "error");
     return;
   }
 
-  alert("Pengajuan berhasil dihapus.");
+  showToast("Pengajuan berhasil dihapus.", "success");
   await loadReviewPengajuan();
 }
 
@@ -503,7 +504,7 @@ async function uploadFormTTD() {
   const file = fileInput?.files?.[0];
 
   if (!file) {
-    alert("Pilih file terlebih dahulu.");
+    showToast("Pilih file terlebih dahulu.", "warning");
     return;
   }
 
@@ -530,7 +531,7 @@ async function uploadFormTTD() {
     .upload(fileName, file, { upsert: true });
 
   if (error) {
-    alert(error.message);
+    showToast("Gagal mengunggah dokumen.", "error");
     console.error(error);
     return;
   }
@@ -544,7 +545,7 @@ async function uploadFormTTD() {
     });
 
   if (docError) {
-    alert(docError.message);
+    showToast("Gagal menyimpan dokumen.", "error");
     console.error(docError);
     return;
   }
@@ -569,7 +570,7 @@ async function sudahDitandatangani(id) {
     .single();
 
   if (error) {
-    alert(error.message);
+    showToast("Gagal memperbarui status pengajuan.", "error");
     console.error(error);
     return;
   }
@@ -602,7 +603,7 @@ async function approvePengajuan(id) {
   });
 
   if (error) {
-    alert(error.message);
+    showToast("Gagal menyetujui pengajuan.", "error");
     console.error(error);
     return;
   }

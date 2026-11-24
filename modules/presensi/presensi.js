@@ -1,5 +1,5 @@
 import { uploadDokumen } from "/utils/upload.js";
-import { getPegawaiLogin, badgeStatus } from "/utils/helper.js";
+import { getPegawaiLogin, badgeStatus, showToast} from "/utils/helper.js";
 
 let cachedPegawai = null;
 let clockIntervalId = null;
@@ -78,7 +78,7 @@ export async function initPresensi() {
         });
         if (video) video.srcObject = currentStream;
       } catch (err) {
-        alert("Tidak dapat mengakses kamera: " + err.message);
+        showToast("Tidak dapat mengakses kamera: " + err.message, "error");
       }
     });
   }
@@ -134,7 +134,7 @@ export async function initPresensi() {
 
       canvas.toBlob((blob) => {
         if (!blob) {
-          alert("Gagal memproses gambar dari kamera.");
+          showToast("Gagal memproses gambar dari kamera.", "error");
           return;
         }
         const file = new File([blob], `presensi_${Date.now()}.jpg`, { type: "image/jpeg" });
@@ -161,7 +161,7 @@ export async function initPresensi() {
 
       const photoInput = document.getElementById("photoFile");
       if (!photoInput || photoInput.files.length === 0) {
-        alert("Silakan ambil foto presensi terlebih dahulu!");
+        showToast("Silakan ambil foto presensi terlebih dahulu!", "error");
         return;
       }
 
@@ -288,29 +288,29 @@ async function simpanPresensi() {
     const file = document.getElementById("photoFile")?.files?.[0];
 
     if (!latitude || !longitude) {
-      alert("Lokasi GPS belum terdeteksi. Pastikan GPS aktif dan izin lokasi diberikan.");
+      showToast("Lokasi GPS belum terdeteksi. Pastikan GPS aktif dan izin lokasi diberikan.", "error");
       return;
     }
 
     if (!file) {
-      alert("Foto presensi (geotag) wajib diambil.");
+      showToast("Foto presensi (geotag) wajib diambil.", "error");
       return;
     }
 
     if (file.type !== "image/jpeg" && file.type !== "image/png") {
-      alert("File foto harus berformat JPG atau PNG.");
+      showToast("File foto harus berformat JPG atau PNG.", "error");
       return;
     }
 
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
-      alert("Ukuran file foto maksimal 2 MB.");
+      showToast("Ukuran file foto maksimal 2 MB.", "error");
       return;
     }
 
     const pegawai = await getCurrentPegawai();
     if (!pegawai?.id) {
-      alert("Sesi login berakhir atau data pegawai tidak ditemukan.");
+      showToast("Sesi login berakhir atau data pegawai tidak ditemukan.", "error");
       return;
     }
 
@@ -319,7 +319,7 @@ async function simpanPresensi() {
       filePath = await uploadDokumen("bukti_presensi", "ABSEN", pegawai.id, file);
     } catch (err) {
       console.error(err);
-      alert("Gagal mengupload foto: " + err.message);
+      showToast("Gagal mengupload foto: " + err.message, "error");
       return;
     }
 
@@ -330,7 +330,7 @@ async function simpanPresensi() {
 
     if (nomorError) {
       console.error(nomorError);
-      alert("Gagal membuat nomor presensi.");
+      showToast("Gagal membuat nomor presensi.", "error");
       return;
     }
 
@@ -349,7 +349,7 @@ async function simpanPresensi() {
 
     if (pengajuanError) {
       console.error(pengajuanError);
-      alert("Gagal menyimpan data presensi.");
+      showToast("Gagal menyimpan data presensi.", "error");
       return;
     }
 
@@ -365,11 +365,11 @@ async function simpanPresensi() {
 
     if (detailError) {
       console.error(detailError);
-      alert("Gagal menyimpan detail presensi.");
+      showToast("Gagal menyimpan detail presensi.", "error");
       return;
     }
 
-    alert("Presensi berhasil disimpan!");
+    showToast("Presensi berhasil disimpan!", "success");
 
     document.getElementById("attendanceForm")?.reset();
     const capturedImage = document.getElementById("capturedImage");
@@ -474,12 +474,12 @@ async function hapusPresensi(id) {
 
   if (error) {
     console.error(error);
-    alert("Gagal memuat data presensi.");
+    showToast("Gagal memuat data presensi.", "error");
     return;
   }
 
   if (data.status !== "MENUNGGU" && data.status !== "HADIR") {
-    alert("Presensi yang sudah divalidasi/diproses tidak dapat dihapus.");
+    showToast("Presensi yang sudah diproses tidak dapat dihapus.", "error");
     return;
   }
 
@@ -497,16 +497,16 @@ async function hapusPresensi(id) {
 
   if (updateError) {
     console.error(updateError);
-    alert("Gagal menghapus presensi.");
+    showToast("Gagal menghapus presensi.", "error");
     return;
   }
 
   if (!updateData || updateData.length === 0) {
-    alert("Presensi gagal dihapus (tidak memiliki izin update).");
+    showToast("Presensi gagal dihapus (tidak memiliki izin update).", "error");
     return;
   }
 
-  alert("Presensi berhasil dihapus.");
+  showToast("Presensi berhasil dihapus.", "success");
   await loadRiwayatPresensi();
 }
 

@@ -1,4 +1,4 @@
-import { badgeStatus, updateStatusPengajuan } from "/utils/helper.js";
+import { badgeStatus, updateStatusPengajuan, showToast } from "/utils/helper.js";
 
 const URUTAN_STATUS_ABSEN = {
   MENUNGGU: 1,
@@ -113,7 +113,7 @@ export async function initReviewPengajuanAbsensi() {
     btnSimpanTolak.onclick = async () => {
       const alasan = txtAlasan?.value.trim() || "";
       if (!alasan) {
-        alert("Alasan penolakan wajib diisi.");
+        showToast("Alasan penolakan wajib diisi.", "warning");
         txtAlasan?.focus();
         return;
       }

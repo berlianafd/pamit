@@ -424,7 +424,7 @@ export async function lihatFormCuti(id) {
 
     console.error(error);
 
-    alert("Form cuti tidak ditemukan.");
+    showToast("Form cuti tidak ditemukan.", "error");
 
     return;
 
@@ -446,7 +446,7 @@ export async function lihatFormCuti(id) {
 
     console.error(urlError);
 
-    alert("Gagal membuka form cuti.");
+    showToast("Gagal membuka form cuti.", "error");
 
     return;
 
@@ -548,5 +548,26 @@ export function showToast(pesan, type = "info", duration = 2600) {
 
   if (duration > 0) {
     setTimeout(removeToast, duration);
+  }
+}
+
+export function setButtonLoading(btn, isLoading, loadingText = "Memproses...") {
+  if (!btn) return;
+
+  if (isLoading) {
+    if (!btn.dataset.originalHtml) {
+      btn.dataset.originalHtml = btn.innerHTML;
+    }
+    btn.disabled = true;
+    btn.classList.add("is-loading");
+    btn.innerHTML = `<span class="btn-spinner" aria-hidden="true"></span><span>${loadingText}</span>`;
+    return;
+  }
+
+  btn.disabled = false;
+  btn.classList.remove("is-loading");
+  if (btn.dataset.originalHtml) {
+    btn.innerHTML = btn.dataset.originalHtml;
+    delete btn.dataset.originalHtml;
   }
 }

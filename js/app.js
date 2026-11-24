@@ -24,7 +24,7 @@ import { reviewPresensiDLPage } from "../views/pages/reviewPresensiDL.js";
 import { presensiTKPage } from "../views/pages/presensiTK.js";
 
 import {ulangTahunBulanini, loadUlangTahunBulanIni} from "../utils/birthday.js";
-import {formatTanggal} from "../utils/helper.js";
+import {formatTanggal, showToast} from "../utils/helper.js";
 
 import { loadPegawai, initMasterPegawai } from "../modules/pegawai/pegawai.js";
 import { initPresensiTK } from "../modules/pegawai/pegawaiTK.js";
@@ -174,8 +174,8 @@ async function login() {
       !pegawai
     ) {
 
-      alert(
-        "NIP tidak ditemukan"
+      showToast(
+        "NIP tidak ditemukan","error"
       );
 
       return;
@@ -184,8 +184,8 @@ async function login() {
 
     if (!pegawai.aktif) {
 
-      alert(
-        "Akun tidak aktif"
+      showToast(
+        "Akun tidak aktif","error"
       );
 
       return;
@@ -211,8 +211,9 @@ async function login() {
         loginError
       );
 
-      alert(
-        "Password salah"
+      showToast(
+        "Password salah",
+        "error"
       );
 
       return;
@@ -226,8 +227,9 @@ async function login() {
 
     console.error(err);
 
-    alert(
-      "Terjadi kesalahan saat login"
+    showToast(
+      "Terjadi kesalahan saat login",
+      "error"
     );
 
   }
@@ -498,24 +500,24 @@ document.querySelectorAll(".toggle-password").forEach((btn) => {
       const confirmPassword = document.getElementById("confirmPassword").value;
 
       if (!currentPassword || !newPassword || !confirmPassword) {
-        alert("Semua kolom wajib diisi!");
+        showToast("Semua kolom wajib diisi!", "error");
         return;
       }
 
       if (newPassword !== confirmPassword) {
-        alert("Password baru dan konfirmasi password tidak cocok!");
+        showToast("Password baru dan konfirmasi password tidak cocok!", "error");
         return;
       }
 
       if (newPassword.length < 6) {
-        alert("Password baru minimal harus 6 karakter.");
+        showToast("Password baru minimal harus 6 karakter.", "error");
         return;
       }
 
       try {
         const { data: userData } = await supabase.auth.getUser();
         if (!userData?.user?.email) {
-          alert("Sesi login berakhir. Silakan login kembali.");
+          showToast("Sesi login berakhir. Silakan login kembali.", "error");
           return;
         }
 
@@ -525,7 +527,7 @@ document.querySelectorAll(".toggle-password").forEach((btn) => {
         });
 
         if (loginError) {
-          alert("Password lama salah!");
+          showToast("Password lama salah!", "error");
           return;
         }
 
@@ -535,7 +537,7 @@ document.querySelectorAll(".toggle-password").forEach((btn) => {
 
         if (updateError) throw updateError;
 
-        alert("Password berhasil diubah!");
+        showToast("Password berhasil diubah!", "success");
         const modalEl = document.getElementById("modalUbahPassword");
         if (modalEl) modalEl.close ? modalEl.close() : (modalEl.style.display = "none");
         await supabase.auth.signOut();
@@ -543,7 +545,7 @@ document.querySelectorAll(".toggle-password").forEach((btn) => {
 
       } catch (err) {
         console.error(err);
-        alert("Terjadi kesalahan: " + err.message);
+        showToast("Terjadi kesalahan: " + err.message, "error");
       }
     }
   });

@@ -1,4 +1,5 @@
 import { supabase } from "../auth/auth.js";
+import { showToast } from "/utils/helper.js";
 
 let editId = null;
 let currentPage = 1;
@@ -275,7 +276,7 @@ async function simpanPegawai() {
   const role = document.getElementById("roleBaru")?.value || "pegawai";
 
   if (!nip || !nama || !jabatan || !nohp) {
-    alert("Lengkapi data");
+    showToast("Lengkapi data", "warning");
     return;
   }
 
@@ -292,14 +293,14 @@ async function simpanPegawai() {
       aktif: true
     });
 
-    alert("Pegawai Berhasil Ditambahkan");
+    showToast("Pegawai Berhasil Ditambahkan", "success");
     const tambahModal = document.getElementById("tambahModal");
     if (tambahModal) tambahModal.style.display = "none";
     resetFormTambahPegawai();
     await loadPegawai();
   } catch (err) {
     console.error(err);
-    alert(err.message || "Gagal menambahkan pegawai");
+    showToast("Gagal menambahkan pegawai", "error");
   } finally {
     isSavingPegawai = false;
   }
@@ -318,7 +319,7 @@ async function createPegawai(payload) {
 
 async function resetPassword(nip) {
   if (!nip || nip.length !== 18) {
-    alert("NIP harus 18 digit");
+    showToast("NIP harus 18 digit", "warning");
     return;
   }
 
@@ -330,11 +331,11 @@ async function resetPassword(nip) {
 
   if (error) {
     console.error(error);
-    alert("Gagal mereset password");
+    showToast("Gagal mereset password", "error");
     return;
   }
 
-  alert("Password berhasil direset");
+  showToast("Password berhasil direset", "success");
 }
 
 async function togglePegawai(id, aktif) {
@@ -348,7 +349,7 @@ async function togglePegawai(id, aktif) {
 
   if (error) {
     console.error(error);
-    alert("Gagal mengubah status");
+    showToast("Gagal mengubah status", "error");
     return;
   }
 
@@ -381,7 +382,7 @@ async function saveEditPegawai() {
 
     if (error) {
       console.error(error);
-      alert("Gagal menyimpan perubahan");
+      showToast("Gagal menyimpan perubahan", "error");
       return;
     }
 
@@ -438,7 +439,7 @@ async function importPegawaiExcel(e) {
     }
 
     if (daftarError.length > 0) console.table(daftarError);
-    alert(`Import selesai\n\nBerhasil : ${berhasil}\nGagal : ${gagal}`);
+    showToast(`Import selesai\n\nBerhasil : ${berhasil}\nGagal : ${gagal}`, "info");
     currentPage = 1;
     await loadPegawai();
   } finally {

@@ -1,7 +1,8 @@
 import {
   badgeStatus,
   updateStatusPengajuan,
-  updateTKBerdasarkanRentangTanggal
+  updateTKBerdasarkanRentangTanggal,
+  showToast
 } from "/utils/helper.js";
 import { KETERANGAN_TK } from "../config/constants.js";
 
@@ -107,7 +108,7 @@ export async function initReviewPresensiDL() {
     btnSimpanTolak.onclick = async () => {
       const alasan = txtAlasan?.value.trim() || "";
       if (!alasan) {
-        alert("Alasan penolakan wajib diisi.");
+        showToast("Alasan penolakan wajib diisi.", "warning");
         txtAlasan?.focus();
         return;
       }
@@ -217,7 +218,7 @@ async function approvePresensiDL(id) {
 
   if (error) {
     console.error(error);
-    alert("Gagal memuat detail DL untuk pembaruan TK.");
+    showToast("Gagal memuat detail DL untuk pembaruan TK.", "error");
     return;
   }
 
@@ -347,7 +348,7 @@ async function lihatSuratTugas(pengajuanId) {
     .single();
 
   if (error || !data?.file_url) {
-    alert("Dokumen tidak ditemukan.");
+    showToast("Dokumen tidak ditemukan.", "error");
     return;
   }
 
@@ -356,7 +357,7 @@ async function lihatSuratTugas(pengajuanId) {
     .createSignedUrl(data.file_url, 600);
 
   if (signedError || !signed?.signedUrl) {
-    alert("Gagal membuka dokumen.");
+    showToast("Gagal membuka dokumen.", "error");
     return;
   }
 
