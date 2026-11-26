@@ -1,4 +1,4 @@
-import { supabase } from "../modules/auth/auth.js";
+import { supabase } from "../auth/auth.js";
 
 import { registerRoute, navigate } from "./router.js";
 
@@ -23,24 +23,24 @@ import { saldoCutiPage } from "../views/pages/saldoCuti.js";
 import { reviewPresensiDLPage } from "../views/pages/reviewPresensiDL.js";
 import { presensiTKPage } from "../views/pages/presensiTK.js";
 
-import {ulangTahunBulanini, loadUlangTahunBulanIni} from "../modules/utils/birthday.js";
-import {formatTanggal, showToast} from "../modules/utils/helper.js";
+import {ulangTahunBulanini, loadUlangTahunBulanIni} from "../utils/birthday.js";
+import {formatTanggal, showToast} from "../utils/helper.js";
 
-import { loadPegawai, initMasterPegawai } from "../modules/pegawai/pegawai.js";
-import { initPresensiTK } from "../modules/pegawai/pegawaiTK.js";
-import { initSaldoCuti } from "../modules/pegawai/saldoCuti.js";
+import { loadPegawai, initMasterPegawai } from "../pegawai/pegawai.js";
+import { initPresensiTK } from "../pegawai/pegawaiTK.js";
+import { initSaldoCuti } from "../pegawai/saldoCuti.js";
 
-import { initPresensi } from "../modules/presensi/presensi.js";
-import { initPengajuanDl } from "../modules/dinasLuar/dinasLuar.js";
+import { initPresensi } from "../presensi/presensi.js";
+import { initPengajuanDl } from "../dinasLuar/dinasLuar.js";
 
-import { initPengajuanCutiTahunan } from "../modules/cuti/cutiTahunan.js";
-import { initPengajuanCutiSakit } from "../modules/cuti/cutiSakit.js";
-import { initPengajuanCutiAlasanPenting } from "../modules/cuti/cutiAlasanPenting.js";
+import { initPengajuanCutiTahunan } from "../cuti/cutiTahunan.js";
+import { initPengajuanCutiSakit } from "../cuti/cutiSakit.js";
+import { initPengajuanCutiAlasanPenting } from "../cuti/cutiAlasanPenting.js";
 
-import { initReviewPresensiDL } from "../modules/review/presensiDL.js";
-import { initReviewPengajuanAbsensi } from "../modules/review/pengajuanAbsensi.js";   
-import {initReviewPengajuan} from "../modules/review/pengajuanCuti.js";
-import { initReviewPresensiCuti } from "../modules/review/presensiCuti.js";
+import { initReviewPresensiDL } from "../review/presensiDL.js";
+import { initReviewPengajuanAbsensi } from "../review/pengajuanAbsensi.js";   
+import {initReviewPengajuan} from "../review/pengajuanCuti.js";
+import { initReviewPresensiCuti } from "../review/presensiCuti.js";
 
 
 window.loadRekapTK = loadRekapTK;
