@@ -1,4 +1,4 @@
-import { supabase } from "/modules/auth/auth.js";
+import { supabase } from "../modules/auth/auth.js";
 
 import { registerRoute, navigate } from "./router.js";
 
