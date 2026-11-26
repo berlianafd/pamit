@@ -4,9 +4,9 @@ import {
   badgeStatus,
   updateStatusPengajuan,
   showToast
-} from "/utils/helper.js";
+} from "../utils/helper.js";
 import { KETERANGAN_TK } from "../config/constants.js";
-import { generateFormCuti } from "/utils/generateFormCuti.js";
+import { generateFormCuti } from "../utils/generateFormCuti.js";
 
 const JENIS_LABEL = {
   CUTI_TAHUNAN: "Cuti Tahunan",

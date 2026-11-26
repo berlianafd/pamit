@@ -1,5 +1,5 @@
-import { supabase } from "/modules/auth/auth.js";
-import {KETERANGAN_TK} from "/modules/config/constants.js";
+import { supabase } from "../auth/auth.js";
+import {KETERANGAN_TK} from "../config/constants.js";
 
 let cachedPegawaiLogin = null;
 

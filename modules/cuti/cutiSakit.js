@@ -1,4 +1,4 @@
-import { initWilayahCuti } from "/utils/wilayahServices.js";
+import { initWilayahCuti } from "../utils/wilayahServices.js";
 import {
   lihatFormCuti,
   getPegawaiLogin,
@@ -6,9 +6,9 @@ import {
   updateTKBerdasarkanRentangTanggal,
   refreshKeteranganTKRentang,
   showToast
-} from "/utils/helper.js";
+} from "../utils/helper.js";
 import { KETERANGAN_TK } from "../config/constants.js";
-import { uploadDokumen } from "/utils/upload.js";
+import { uploadDokumen } from "../utils/upload.js";
 
 const ALLOWED_EXTENSIONS = new Set(["pdf", "jpg", "jpeg", "png"]);
 const MAX_PDF_BYTES = 2 * 1024 * 1024;

@@ -1,4 +1,4 @@
-import { badgeStatus, updateStatusPengajuan, showToast } from "/utils/helper.js";
+import { badgeStatus, updateStatusPengajuan, showToast } from "../utils/helper.js";
 
 const URUTAN_STATUS_ABSEN = {
   MENUNGGU: 1,

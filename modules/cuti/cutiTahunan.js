@@ -5,9 +5,9 @@ import {
   badgeStatus,
   getPegawaiLogin,
   showToast
-} from "/utils/helper.js";
-import { initWilayahCuti } from "/utils/wilayahServices.js";
-import { uploadDokumen } from "/utils/upload.js";
+} from "../utils/helper.js";
+import { initWilayahCuti } from "../utils/wilayahServices.js";
+import { uploadDokumen } from "../utils/upload.js";
 import { KETERANGAN_TK } from "../config/constants.js";
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);

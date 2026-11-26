@@ -1,5 +1,5 @@
-import { uploadDokumen } from "/utils/upload.js";
-import { getPegawaiLogin, badgeStatus, showToast} from "/utils/helper.js";
+import { uploadDokumen } from "../utils/upload.js";
+import { getPegawaiLogin, badgeStatus, showToast} from "../utils/helper.js";
 
 let cachedPegawai = null;
 let clockIntervalId = null;

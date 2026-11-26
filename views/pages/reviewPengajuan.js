@@ -1,4 +1,4 @@
-import { generateFormCuti } from "../../utils/generateFormCuti.js";
+import { generateFormCuti } from "../../modules/utils/generateFormCuti.js";
 
 export function reviewPengajuanPage() {
 

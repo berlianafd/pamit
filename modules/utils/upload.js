@@ -1,7 +1,7 @@
 // import imageCompression
 // from "browser-image-compression";
 
-import { supabase } from "/modules/auth/auth.js";
+import { supabase } from "../auth/auth.js";
 
 
 export async function compressImage(file){

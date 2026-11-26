@@ -1,5 +1,5 @@
 import { supabase } from "../auth/auth.js";
-import { showToast } from "/utils/helper.js";
+import { showToast } from "../utils/helper.js";
 
 let editId = null;
 let currentPage = 1;

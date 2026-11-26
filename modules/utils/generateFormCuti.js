@@ -1,6 +1,6 @@
-import { supabase } from "/modules/auth/auth.js";
+import { supabase } from "../auth/auth.js";
 
-const TEMPLATE_CUTI = "assets/template_cuti.docx";
+const TEMPLATE_CUTI = "/assets/template_cuti.docx";
 
 export async function generateFormCuti(pengajuanId) {
 

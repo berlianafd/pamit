@@ -4,9 +4,9 @@ import {
   updateTKBerdasarkanRentangTanggal,
   refreshKeteranganTKRentang,
   showToast
-} from "/utils/helper.js";
-import { uploadDokumen } from "/utils/upload.js";
-import { KETERANGAN_TK } from "/modules/config/constants.js";
+} from "../utils/helper.js";
+import { uploadDokumen } from "../utils/upload.js";
+import { KETERANGAN_TK } from "../config/constants.js";
 
 const MAX_PDF_BYTES = 2 * 1024 * 1024;
 
